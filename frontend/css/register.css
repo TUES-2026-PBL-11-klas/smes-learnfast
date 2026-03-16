@@ -115,17 +115,15 @@ input:focus, textarea:focus {
     background: white;
 }
 
-.password-toggle {
-    position: absolute;
-    right: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    cursor: pointer;
-    font-size: 12px;
-    color: #16a34a;
-    font-weight: 500;
-}
-
+.password-toggle{
+      position:absolute;
+      right:12px;
+      top:38px;
+      cursor:pointer;
+      font-size:12px;
+      color:#16a34a;
+      font-weight:500;
+    }
 button.submit {
     width: 100%;
     padding: 13px;
