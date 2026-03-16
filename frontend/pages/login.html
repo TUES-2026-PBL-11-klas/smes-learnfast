@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mentor Platform - Login</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../css/login.css">
+</head>
+<body>
+
+<div class="login-wrapper">
+
+  <div class="login-card">
+
+    <div class="logo">LearnFast</div>
+    <div class="subtitle">Learn from mentors around the world</div>
+
+    <form>
+
+      <div class="input-group">
+        <label>Email</label>
+        <input type="email" placeholder="Enter your email" required>
+      </div>
+
+      <div class="input-group">
+        <label>Password</label>
+        <input type="password" id="password" placeholder="Enter your password" required>
+        <span class="password-toggle" onclick="togglePassword()">show</span>
+      </div>
+
+      <button type="submit">Login</button>
+
+    </form>
+
+    <div class="divider">or</div>
+
+    <div class="footer">
+      Don't have an account? <a href="register.html">Register</a>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+
+function togglePassword(){
+  const password = document.getElementById("password");
+
+  if(password.type === "password"){
+    password.type = "text";
+  } else {
+    password.type = "password";
+  }
+
+}
+
+</script>
+
+</body>
+</html>

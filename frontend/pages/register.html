@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkillConnect - Register</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/register.css">
+</head>
+<body>
+
+<div class="register-wrapper">
+<div class="register-card">
+<div class="logo">LearnFast</div>
+<div class="subtitle">Create your account</div>
+
+<div class="switch">
+<button id="studentBtn" class="active">Student</button>
+<button id="mentorBtn">Mentor</button>
+</div>
+
+<form>
+<div class="input-group">
+<label>Full Name</label>
+<input type="text" placeholder="Enter your name" required>
+</div>
+<div class="input-group">
+<label>Username</label>
+<input type="text" placeholder="Choose username" required>
+</div>
+<div class="input-group">
+<label>Email</label>
+<input type="email" placeholder="Enter your email" required>
+</div>
+<div class="input-group">
+<label>Age</label>
+<input type="number" placeholder="Your age" required>
+</div>
+<div class="input-group">
+<label>Password</label>
+<input type="password" id="password" placeholder="Create password" required>
+<span class="password-toggle" onclick="togglePassword()">show</span>
+</div>
+<div class="input-group">
+<label>Confirm Password</label>
+<input type="password" placeholder="Repeat password" required>
+</div>
+
+<div id="mentorFields">
+<div class="input-group">
+<label>Bio</label>
+<textarea placeholder="Tell students about yourself"></textarea>
+</div>
+<div class="input-group">
+<label>What do you teach?</label>
+<input type="text" placeholder="Example: Math, History">
+</div>
+<div class="input-group">
+<label>Years of experience</label>
+<input type="text" placeholder="Example: 5 years">
+</div>
+<div class="input-group">
+<label>Additional information</label>
+<textarea placeholder="Anything else students should know"></textarea>
+</div>
+<div class="note">Mentor accounts require admin approval</div>
+</div>
+
+<button type="submit" class="submit">Register</button>
+</form>
+
+<div class="divider">or</div>
+
+<div class="footer">
+Already have an account? <a href="login.html">Login</a>
+</div>
+</div>
+</div>
+
+<script>
+const studentBtn = document.getElementById("studentBtn");
+const mentorBtn = document.getElementById("mentorBtn");
+const mentorFields = document.getElementById("mentorFields");
+
+studentBtn.onclick = () => {
+studentBtn.classList.add("active");
+mentorBtn.classList.remove("active");
+mentorFields.style.display = "none";
+}
+
+mentorBtn.onclick = () => {
+mentorBtn.classList.add("active");
+studentBtn.classList.remove("active");
+mentorFields.style.display = "block";
+}
+
+function togglePassword(){
+const password = document.getElementById("password");
+if(password.type === "password"){ password.type="text"; }
+else{ password.type="password"; }
+}
+</script>
+
+</body>
+</html>
