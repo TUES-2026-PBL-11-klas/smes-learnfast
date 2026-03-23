@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Registration Logic
     registerForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        
+
         const pass = document.getElementById("password").value;
         const confirmPass = document.getElementById("confirmPassword").value;
 
