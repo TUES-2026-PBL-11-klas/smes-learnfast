@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.querySelector('form');
-    
+
     loginForm.addEventListener('submit', (e) => {
         e.preventDefault(); // Prevents page refresh
 
@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Success Simulation
             console.log("Logged in as:", email);
             alert("Welcome back!");
-            window.location.href = "home.html"; 
+            window.location.href = "home.html";
         } else {
             alert("Please enter both email and password.");
         }
