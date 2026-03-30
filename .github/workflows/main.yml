@@ -1,0 +1,32 @@
+name: Java CI with Maven
+
+on:
+  push:
+    branches: [ "main", "UI", "virtualization" ]
+  pull_request:
+    branches: [ "main", "UI", "virtualization" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout repo
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Set up Java
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: maven
+
+      # Build + Test
+      - name: Build and test with Maven
+        run: mvn -B clean verify
+
+      # Lint (Checkstyle)
+      - name: Run Checkstyle
+        run: mvn checkstyle:check
