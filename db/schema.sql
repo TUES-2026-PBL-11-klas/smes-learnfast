@@ -13,6 +13,9 @@ CREATE TABLE users(
     email VARCHAR(100) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     role_id INT NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    age INT NOT NULL,
+    bio VARCHAR(1000),
     
     FOREIGN KEY (role_id) REFERENCES roles(id)
 );
