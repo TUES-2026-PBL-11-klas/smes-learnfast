@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Call — LearnFast</title>
+    <link rel="stylesheet" href="/frontend/css/global.css">
+    <link rel="stylesheet" href="/frontend/css/pages.css">
+</head>
+<body>
+    <div class="bg-animated"></div>
+
+    <nav class="navbar" id="navbar">
+        <a href="/frontend/pages/index.html" class="navbar-brand">
+            <span class="brand-icon">⚡</span> LearnFast
+        </a>
+        <div class="navbar-links" id="nav-links"></div>
+    </nav>
+
+    <div class="video-layout">
+        <h2 class="text-center">Video Session</h2>
+        <p class="text-muted text-center" id="video-status">Connecting...</p>
+
+        <div class="video-grid">
+            <div class="video-container">
+                <video id="local-video" autoplay muted playsinline></video>
+                <div class="video-label">You</div>
+            </div>
+            <div class="video-container">
+                <video id="remote-video" autoplay playsinline></video>
+                <div class="video-label" id="remote-label">Waiting for peer...</div>
+            </div>
+        </div>
+
+        <div class="video-controls">
+            <button class="btn btn-icon" id="btn-mic" onclick="toggleMic()" title="Toggle Microphone">🎤</button>
+            <button class="btn btn-icon" id="btn-camera" onclick="toggleCamera()" title="Toggle Camera">📷</button>
+            <button class="btn btn-icon btn-end-call" id="btn-end" onclick="endCall()" title="End Call">📞</button>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+    <script src="/frontend/js/api.js"></script>
+    <script src="/frontend/js/video.js"></script>
+</body>
+</html>

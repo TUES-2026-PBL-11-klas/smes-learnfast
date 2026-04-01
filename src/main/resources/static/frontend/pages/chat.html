@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat — LearnFast</title>
+    <link rel="stylesheet" href="/frontend/css/global.css">
+    <link rel="stylesheet" href="/frontend/css/pages.css">
+</head>
+<body>
+    <div class="bg-animated"></div>
+
+    <nav class="navbar" id="navbar">
+        <a href="/frontend/pages/index.html" class="navbar-brand">
+            <span class="brand-icon">⚡</span> LearnFast
+        </a>
+        <div class="navbar-links" id="nav-links"></div>
+    </nav>
+
+    <div class="chat-layout">
+        <!-- Sidebar -->
+        <div class="chat-sidebar" id="chat-sidebar">
+            <div class="chat-sidebar-header">
+                <h3>💬 Messages</h3>
+            </div>
+            <div class="chat-list" id="chat-list">
+                <div class="page-loader" style="min-height: 200px;">
+                    <div class="loader"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Chat Area -->
+        <div class="chat-main" id="chat-main">
+            <div class="chat-empty">
+                <div class="empty-icon">💬</div>
+                <h3>Select a conversation</h3>
+                <p class="text-muted">Choose a contact from the sidebar to start chatting</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <script src="/frontend/js/api.js"></script>
+    <script src="/frontend/js/chat.js"></script>
+</body>
+</html>

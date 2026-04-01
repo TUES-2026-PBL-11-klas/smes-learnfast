@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel — LearnFast</title>
+    <link rel="stylesheet" href="/frontend/css/global.css">
+    <link rel="stylesheet" href="/frontend/css/pages.css">
+</head>
+<body>
+    <div class="bg-animated"></div>
+
+    <nav class="navbar" id="navbar">
+        <a href="/frontend/pages/index.html" class="navbar-brand">
+            <span class="brand-icon">⚡</span> LearnFast
+        </a>
+        <div class="navbar-links" id="nav-links"></div>
+    </nav>
+
+    <div class="admin-layout">
+        <div class="admin-sidebar">
+            <button class="admin-nav-item active" onclick="showTab('subjects')" id="tab-subjects">
+                📚 Subjects
+            </button>
+            <button class="admin-nav-item" onclick="showTab('users')" id="tab-users">
+                👥 Users
+            </button>
+        </div>
+
+        <div class="admin-content">
+            <!-- Subjects Tab -->
+            <div id="panel-subjects">
+                <h2>📚 Manage Subjects</h2>
+                <div class="admin-toolbar">
+                    <div class="admin-form-inline">
+                        <input type="text" class="form-control" id="new-subject-name" placeholder="New subject name...">
+                        <button class="btn btn-primary" onclick="addSubject()">Add Subject</button>
+                    </div>
+                </div>
+                <div id="alert-container"></div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr><th>ID</th><th>Name</th><th>Actions</th></tr>
+                        </thead>
+                        <tbody id="subjects-table-body">
+                            <tr><td colspan="3" class="text-center text-muted" style="padding:2rem;">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Users Tab -->
+            <div id="panel-users" style="display:none;">
+                <h2>👥 Manage Users</h2>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr><th>ID</th><th>Name</th><th>Username</th><th>Email</th><th>Role</th><th>Actions</th></tr>
+                        </thead>
+                        <tbody id="users-table-body">
+                            <tr><td colspan="6" class="text-center text-muted" style="padding:2rem;">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/frontend/js/api.js"></script>
+    <script src="/frontend/js/admin.js"></script>
+</body>
+</html>

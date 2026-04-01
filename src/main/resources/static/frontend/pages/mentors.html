@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Mentors — LearnFast</title>
+    <link rel="stylesheet" href="/frontend/css/global.css">
+    <link rel="stylesheet" href="/frontend/css/pages.css">
+</head>
+<body>
+    <div class="bg-animated"></div>
+
+    <nav class="navbar" id="navbar">
+        <a href="/frontend/pages/index.html" class="navbar-brand">
+            <span class="brand-icon">⚡</span> LearnFast
+        </a>
+        <div class="navbar-links" id="nav-links"></div>
+    </nav>
+
+    <div class="page-content">
+        <div class="container">
+            <div class="mentors-header">
+                <div>
+                    <h1>Find Your Mentor</h1>
+                    <p class="text-muted mt-1">Browse expert mentors and start learning</p>
+                </div>
+                <div class="search-box">
+                    <input type="text" class="form-control" id="search-input" placeholder="Search by name or subject...">
+                </div>
+            </div>
+
+            <div id="subject-filters" class="flex gap-1 mb-3" style="flex-wrap:wrap;"></div>
+
+            <div class="grid grid-3" id="mentors-grid">
+                <div class="page-loader" style="grid-column: 1/-1;">
+                    <div class="loader loader-lg"></div>
+                </div>
+            </div>
+
+            <div id="no-mentors" class="empty-state hidden">
+                <div class="empty-icon">🔍</div>
+                <h3>No mentors found</h3>
+                <p class="text-muted">Try adjusting your search filters</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="/frontend/js/api.js"></script>
+    <script src="/frontend/js/mentors.js"></script>
+</body>
+</html>

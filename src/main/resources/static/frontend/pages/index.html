@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="LearnFast — Connect with expert mentors for personalized learning. Chat, video calls, and real-time support.">
+    <title>LearnFast — Learn Faster with Expert Mentors</title>
+    <link rel="stylesheet" href="/frontend/css/global.css">
+    <link rel="stylesheet" href="/frontend/css/pages.css">
+</head>
+<body>
+    <div class="bg-animated"></div>
+
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar">
+        <a href="/frontend/pages/index.html" class="navbar-brand">
+            <span class="brand-icon">⚡</span> LearnFast
+        </a>
+        <div class="navbar-links" id="nav-links">
+            <a href="/frontend/pages/login.html" class="btn btn-secondary btn-sm">Log In</a>
+            <a href="/frontend/pages/register.html" class="btn btn-primary btn-sm">Sign Up Free</a>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Learn <span class="text-gradient">Faster</span> with Expert Mentors</h1>
+            <p class="subtitle">
+                Connect with experienced mentors in real-time. Get help with any subject through instant chat and video calls. Your personal learning journey starts here.
+            </p>
+            <div class="hero-buttons">
+                <a href="/frontend/pages/register.html" class="btn btn-primary btn-lg">🚀 Get Started Free</a>
+                <a href="/frontend/pages/register.html?role=mentor" class="btn btn-secondary btn-lg">🎓 Become a Mentor</a>
+            </div>
+            <div class="hero-stats">
+                <div class="hero-stat">
+                    <div class="stat-number">500+</div>
+                    <div class="stat-label">Active Mentors</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="stat-number">10K+</div>
+                    <div class="stat-label">Students</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="stat-number">50+</div>
+                    <div class="stat-label">Subjects</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="features-section">
+        <div class="container">
+            <div class="section-title">
+                <h2>Why <span class="text-gradient">LearnFast</span>?</h2>
+                <p>Everything you need for accelerated learning in one platform</p>
+            </div>
+            <div class="grid grid-3">
+                <div class="glass-card feature-card animate-in">
+                    <div class="feature-icon">💬</div>
+                    <h3>Instant Chat</h3>
+                    <p>Message your mentor in real-time. Get answers when you need them most, no waiting required.</p>
+                </div>
+                <div class="glass-card feature-card animate-in">
+                    <div class="feature-icon">📹</div>
+                    <h3>Video Calls</h3>
+                    <p>Face-to-face sessions with screen sharing. Like having a tutor right next to you.</p>
+                </div>
+                <div class="glass-card feature-card animate-in">
+                    <div class="feature-icon">🎯</div>
+                    <h3>Expert Mentors</h3>
+                    <p>Browse mentors by subject and expertise. Find the perfect match for your learning goals.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="features-section">
+        <div class="container">
+            <div class="glass-card" style="text-align: center; padding: 3rem;">
+                <h2 style="margin-bottom: 1rem;">Ready to <span class="text-gradient">Accelerate</span> Your Learning?</h2>
+                <p style="max-width: 500px; margin: 0 auto 2rem;">Join thousands of students already learning faster with LearnFast.</p>
+                <a href="/frontend/pages/register.html" class="btn btn-accent btn-lg">✨ Start Learning Now</a>
+            </div>
+        </div>
+    </section>
+
+    <div style="height: 4rem;"></div>
+
+    <script src="/frontend/js/api.js"></script>
+    <script>
+        // Check if logged in, update navbar
+        API.get('/api/auth/me').then(user => {
+            if (user && !user.error) {
+                document.getElementById('nav-links').innerHTML = `
+                    <a href="/frontend/pages/dashboard.html">Dashboard</a>
+                    <a href="/frontend/pages/mentors.html">Mentors</a>
+                    <a href="/frontend/pages/chat.html">Chat</a>
+                    ${user.role === 'admin' ? '<a href="/frontend/pages/admin.html">Admin</a>' : ''}
+                    <a href="#" onclick="API.post('/api/auth/logout').then(() => location.reload())" class="btn btn-secondary btn-sm">Logout</a>
+                `;
+            }
+        }).catch(() => {});
+    </script>
+</body>
+</html>

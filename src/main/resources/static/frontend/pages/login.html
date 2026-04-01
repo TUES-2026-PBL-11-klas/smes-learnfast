@@ -1,66 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mentor Platform - Login</title>
-
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-
-  <link rel="stylesheet" href="../css/login.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Log in to your LearnFast account.">
+    <title>Log In — LearnFast</title>
+    <link rel="stylesheet" href="/frontend/css/global.css">
+    <link rel="stylesheet" href="/frontend/css/pages.css">
 </head>
 <body>
+    <div class="bg-animated"></div>
 
-<div class="login-wrapper">
+    <nav class="navbar">
+        <a href="/frontend/pages/index.html" class="navbar-brand">
+            <span class="brand-icon">⚡</span> LearnFast
+        </a>
+    </nav>
 
-  <div class="login-card">
+    <div class="auth-page">
+        <div class="glass-card auth-card">
+            <h2>Welcome Back</h2>
+            <p class="auth-subtitle">Log in to continue learning</p>
 
-    <div class="logo">LearnFast</div>
-    <div class="subtitle">Learn from mentors around the world</div>
+            <div id="alert-container"></div>
 
-    <form>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-username">Username</label>
+                    <input type="text" class="form-control" id="login-username" placeholder="Your username" required>
+                </div>
 
-      <div class="input-group">
-        <label>Email</label>
-        <input type="email" placeholder="Enter your email" required>
-      </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" class="form-control" id="login-password" placeholder="••••••••" required>
+                </div>
 
-      <div class="input-group">
-        <label>Password</label>
-        <input type="password" id="password" placeholder="Enter your password" required>
-        <span class="password-toggle" onclick="togglePassword()">show</span>
-      </div>
+                <button type="submit" class="btn btn-primary w-full btn-lg">Log In</button>
+            </form>
 
-      <button type="submit">Login</button>
-
-    </form>
-
-    <div class="divider">or</div>
-
-    <div class="footer">
-      Don't have an account? <a href="register.html">Register</a>
+            <div class="auth-footer">
+                Don't have an account? <a href="/frontend/pages/register.html">Sign up free</a>
+            </div>
+        </div>
     </div>
 
-  </div>
-
-</div>
-
-<script>
-
-function togglePassword(){
-  const password = document.getElementById("password");
-
-  if(password.type === "password"){
-    password.type = "text";
-  } else {
-    password.type = "password";
-  }
-
-}
-
-</script>
-
-<script src="../js/login.js"></script>
-
+    <script src="/frontend/js/api.js"></script>
+    <script src="/frontend/js/auth.js"></script>
 </body>
 </html>

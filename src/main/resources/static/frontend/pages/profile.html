@@ -1,95 +1,94 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LearnFast Profile</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../css/profile.css">
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile — LearnFast</title>
+    <link rel="stylesheet" href="/frontend/css/global.css">
+    <link rel="stylesheet" href="/frontend/css/pages.css">
 </head>
-
 <body>
+    <div class="bg-animated"></div>
 
-<div class="profile-container">
+    <nav class="navbar" id="navbar">
+        <a href="/frontend/pages/index.html" class="navbar-brand">
+            <span class="brand-icon">⚡</span> LearnFast
+        </a>
+        <div class="navbar-links" id="nav-links"></div>
+    </nav>
 
-<!-- LEFT SIDEBAR -->
-<div class="profile-sidebar">
+    <div class="page-content">
+        <div class="container-sm" style="max-width: 700px;">
+            <div id="alert-container"></div>
+            
+            <div class="glass-card profile-header" id="profile-header">
+                <div class="page-loader">
+                    <div class="loader loader-lg"></div>
+                </div>
+            </div>
 
-<div class="avatar">JD</div>
+            <div class="glass-card profile-bio mt-3" id="profile-bio" style="display:none;"></div>
 
-<h2 class="fullname">John Doe</h2>
-<p class="username">@johndoe</p>
+            <!-- Reviews Section -->
+            <div id="reviews-section" class="mt-4" style="display:none;">
+                <h3>Reviews & Ratings</h3>
+                <div id="review-form-container" class="glass-card mt-2 mb-3" style="display:none;">
+                    <h4>Leave a Review</h4>
+                    <form id="review-form">
+                        <div class="form-group mb-1">
+                            <label>Rating</label>
+                            <div class="star-rating" id="review-stars-input">
+                                <span class="star" data-val="1">★</span>
+                                <span class="star" data-val="2">★</span>
+                                <span class="star" data-val="3">★</span>
+                                <span class="star" data-val="4">★</span>
+                                <span class="star" data-val="5">★</span>
+                            </div>
+                            <input type="hidden" id="review-rating" value="0">
+                        </div>
+                        <div class="form-group mb-1">
+                            <label>Comment</label>
+                            <textarea id="review-comment" class="form-control" placeholder="What was your experience like?"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm">Submit Review</button>
+                    </form>
+                </div>
 
-<span class="role mentor">Mentor</span>
+                <div id="reviews-list" class="mt-2"></div>
+            </div>
+        </div>
+    </div>
 
-<div class="info">
-<p><strong>Age:</strong> 25</p>
-<p><strong>Email:</strong> john@email.com</p>
-</div>
+    <!-- Edit Profile Modal -->
+    <div class="modal-backdrop" id="edit-modal">
+        <div class="modal">
+            <button class="modal-close" onclick="closeEditModal()">×</button>
+            <h2 class="mb-2">Edit Profile</h2>
+            <form id="edit-profile-form">
+                <div class="form-group">
+                    <label>Avatar URL (optional)</label>
+                    <input type="url" class="form-control" id="edit-avatar">
+                </div>
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" class="form-control" id="edit-name" required>
+                </div>
+                <div class="form-group">
+                    <label>Bio</label>
+                    <textarea class="form-control" id="edit-bio" rows="4"></textarea>
+                </div>
+                
+                <div id="edit-subjects-container" style="display:none;" class="mb-3">
+                    <label style="display:block;margin-bottom:0.5rem;font-weight:500;font-size:0.9rem;color:var(--text-secondary)">Teaching Subjects</label>
+                    <div id="edit-subjects-list" class="flex gap-1" style="flex-wrap:wrap;"></div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary w-full">Save Changes</button>
+            </form>
+        </div>
+    </div>
 
-</div>
-
-<!-- RIGHT CONTENT -->
-<div class="profile-main">
-
-<h1>Profile Settings</h1>
-
-<form>
-
-<div class="form-row">
-<label>Full Name</label>
-<input type="text" value="John Doe">
-</div>
-
-<div class="form-row">
-<label>Pronouns</label>
-<select>
-<option value="">Prefer not to say</option>
-<option>He / Him</option>
-<option>She / Her</option>
-<option>They / Them</option>
-<option>He / They</option>
-<option>She / They</option>
-</select>
-</div>
-
-<div class="form-row">
-<label>Location</label>
-<input type="text" placeholder="City, Country">
-</div>
-
-<div class="form-row">
-<label>Local Time</label>
-<select>
-<option value="">Select your timezone</option>
-<option>UTC−12:00</option>
-<option>UTC−08:00 (Pacific Time)</option>
-<option>UTC−05:00 (Eastern Time)</option>
-<option>UTC+00:00 (GMT)</option>
-<option>UTC+01:00 (Central Europe)</option>
-<option>UTC+02:00 (Eastern Europe)</option>
-<option>UTC+03:00</option>
-<option>UTC+05:30 (India)</option>
-<option>UTC+08:00 (China / Singapore)</option>
-<option>UTC+09:00 (Japan / Korea)</option>
-<option>UTC+10:00 (Australia)</option>
-</select>
-</div>
-
-<div class="form-row">
-<label>Bio</label>
-<textarea placeholder="Tell something about yourself..."></textarea>
-</div>
-
-<button class="update-btn">Update Profile</button>
-
-</form>
-
-</div>
-
-</div>
-
+    <script src="/frontend/js/api.js"></script>
+    <script src="/frontend/js/profile.js"></script>
 </body>
 </html>

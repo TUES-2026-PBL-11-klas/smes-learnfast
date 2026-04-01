@@ -1,0 +1,89 @@
+// LearnFast — Dashboard
+
+(async function() {
+    const user = await API.requireAuth();
+    if (!user) return;
+
+    // Greeting
+    const hour = new Date().getHours();
+    let greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+    document.getElementById('greeting').textContent = `${greeting}, ${user.name}! 👋`;
+
+    // Show quick actions for students
+    if (user.role === 'student') {
+        document.getElementById('quick-actions').style.display = 'block';
+    }
+
+    // Load sessions
+    try {
+        const sessions = await API.get('/api/sessions');
+        if (Array.isArray(sessions)) {
+            document.getElementById('stat-sessions').textContent = sessions.length;
+            document.getElementById('stat-pending').textContent =
+                sessions.filter(s => s.status === 'PENDING').length;
+
+            const container = document.getElementById('recent-sessions');
+            if (sessions.length > 0) {
+                container.innerHTML = sessions.slice(0, 5).map(s => {
+                    const other = user.role === 'student' ? s.mentor : s.student;
+                    const initials = other.name.split(' ').map(w => w[0]).join('').toUpperCase();
+                    const statusClass = {
+                        PENDING: 'badge-orange',
+                        ACCEPTED: 'badge-green',
+                        REJECTED: 'badge-red',
+                        COMPLETED: 'badge-blue'
+                    }[s.status] || 'badge-blue';
+
+                    return `
+                        <div class="session-item" onclick="${s.status === 'ACCEPTED' ? `window.location.href='/frontend/pages/video.html?room=${s.roomId}'` : ''}">
+                            <div class="avatar avatar-sm">${initials}</div>
+                            <div class="session-info">
+                                <h4>${other.name}</h4>
+                                <p>${new Date(s.createdAt).toLocaleDateString()}</p>
+                            </div>
+                            <span class="badge ${statusClass}">${s.status}</span>
+                            ${s.status === 'PENDING' && user.role === 'mentor' ? `
+                                <button class="btn btn-success btn-sm" onclick="event.stopPropagation(); acceptSession(${s.id})">✓</button>
+                                <button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); rejectSession(${s.id})">✗</button>
+                            ` : ''}
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+    } catch (e) { console.error('Sessions error:', e); }
+
+    // Load conversations
+    try {
+        const convos = await API.get('/api/chat/conversations');
+        if (Array.isArray(convos)) {
+            document.getElementById('stat-conversations').textContent = convos.length;
+
+            const container = document.getElementById('recent-messages');
+            if (convos.length > 0) {
+                container.innerHTML = convos.slice(0, 5).map(c => {
+                    const initials = c.name.split(' ').map(w => w[0]).join('').toUpperCase();
+                    return `
+                        <div class="message-item" onclick="window.location.href='/frontend/pages/chat.html?user=${c.id}'">
+                            <div class="avatar avatar-sm">${initials}</div>
+                            <div class="message-info">
+                                <h4>${c.name}</h4>
+                                <p>@${c.username}</p>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+    } catch (e) { console.error('Conversations error:', e); }
+})();
+
+async function acceptSession(id) {
+    await API.put(`/api/sessions/${id}/accept`);
+    location.reload();
+}
+
+async function rejectSession(id) {
+    await API.put(`/api/sessions/${id}/reject`);
+    location.reload();
+}

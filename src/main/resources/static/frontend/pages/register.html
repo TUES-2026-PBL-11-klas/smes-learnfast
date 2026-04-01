@@ -1,108 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SkillConnect - Register</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../css/register.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Create your LearnFast account and start learning with expert mentors.">
+    <title>Sign Up — LearnFast</title>
+    <link rel="stylesheet" href="/frontend/css/global.css">
+    <link rel="stylesheet" href="/frontend/css/pages.css">
 </head>
 <body>
+    <div class="bg-animated"></div>
 
-<div class="register-wrapper">
-<div class="register-card">
-<div class="logo">LearnFast</div>
-<div class="subtitle">Create your account</div>
+    <nav class="navbar">
+        <a href="/frontend/pages/index.html" class="navbar-brand">
+            <span class="brand-icon">⚡</span> LearnFast
+        </a>
+    </nav>
 
-<div class="switch">
-<button id="studentBtn" class="active">Student</button>
-<button id="mentorBtn">Mentor</button>
-</div>
+    <div class="auth-page">
+        <div class="glass-card auth-card">
+            <h2>Create Account</h2>
+            <p class="auth-subtitle">Join LearnFast and start your journey</p>
 
-<form>
-<div class="input-group">
-<label>Full Name</label>
-<input type="text" placeholder="Enter your name" required>
-</div>
-<div class="input-group">
-<label>Username</label>
-<input type="text" placeholder="Choose username" required>
-</div>
-<div class="input-group">
-<label>Email</label>
-<input type="email" placeholder="Enter your email" required>
-</div>
-<div class="input-group">
-<label>Age</label>
-<input type="number" placeholder="Your age" required>
-</div>
-<div class="input-group">
-<label>Password</label>
-<input type="password" id="password" placeholder="Create password" required>
-<span class="password-toggle" onclick="togglePassword()">show</span>
-</div>
-<div class="input-group">
-<label>Confirm Password</label>
-<input type="password" id="confirmPassword" placeholder="Repeat password" required>
-<span class="password-toggle" onclick="togglePassword()">show</span>
-</div>
+            <div id="alert-container"></div>
 
-<div id="mentorFields">
-<div class="input-group">
-<label>Bio</label>
-<textarea placeholder="Tell students about yourself"></textarea>
-</div>
-<div class="input-group">
-<label>What do you teach?</label>
-<input type="text" placeholder="Example: Math, History">
-</div>
-<div class="input-group">
-<label>Years of experience</label>
-<input type="text" placeholder="Example: 5 years">
-</div>
-<div class="input-group">
-<label>Additional information</label>
-<textarea placeholder="Anything else students should know"></textarea>
-</div>
-<div class="note">Mentor accounts require admin approval</div>
-</div>
+            <form id="register-form">
+                <div class="form-group">
+                    <label>I want to be a...</label>
+                    <div class="role-selector">
+                        <div class="role-option selected" data-role="student" id="role-student" onclick="selectRole('student')">
+                            <div class="role-icon">👨‍🎓</div>
+                            <div class="role-name">Student</div>
+                        </div>
+                        <div class="role-option" data-role="mentor" id="role-mentor" onclick="selectRole('mentor')">
+                            <div class="role-icon">👨‍🏫</div>
+                            <div class="role-name">Mentor</div>
+                        </div>
+                    </div>
+                </div>
 
-<button type="submit" class="submit">Register</button>
-</form>
+                <div class="form-group">
+                    <label for="reg-name">Full Name</label>
+                    <input type="text" class="form-control" id="reg-name" placeholder="John Smith" required>
+                </div>
 
-<div class="divider">or</div>
+                <div class="form-group">
+                    <label for="reg-username">Username</label>
+                    <input type="text" class="form-control" id="reg-username" placeholder="johnsmith" required>
+                </div>
 
-<div class="footer">
-Already have an account? <a href="login.html">Login</a>
-</div>
-</div>
-</div>
+                <div class="form-group">
+                    <label for="reg-email">Email</label>
+                    <input type="email" class="form-control" id="reg-email" placeholder="john@example.com" required>
+                </div>
 
-<script>
-const studentBtn = document.getElementById("studentBtn");
-const mentorBtn = document.getElementById("mentorBtn");
-const mentorFields = document.getElementById("mentorFields");
+                <div class="form-group">
+                    <label for="reg-age">Age</label>
+                    <input type="number" class="form-control" id="reg-age" placeholder="18" min="10" max="100" required>
+                </div>
 
-studentBtn.onclick = () => {
-studentBtn.classList.add("active");
-mentorBtn.classList.remove("active");
-mentorFields.style.display = "none";
-}
+                <div class="form-group">
+                    <label for="reg-password">Password</label>
+                    <input type="password" class="form-control" id="reg-password" placeholder="••••••••" required minlength="6">
+                </div>
 
-mentorBtn.onclick = () => {
-mentorBtn.classList.add("active");
-studentBtn.classList.remove("active");
-mentorFields.style.display = "block";
-}
+                <div class="form-group">
+                    <label for="reg-bio">Bio (optional)</label>
+                    <textarea class="form-control" id="reg-bio" placeholder="Tell us about yourself..." rows="3"></textarea>
+                </div>
 
-function togglePassword(){
-const password = document.getElementById("password");
-if(password.type === "password"){ password.type="text"; }
-else{ password.type="password"; }
-}
-</script>
+                <input type="hidden" id="reg-role" value="student">
 
-<script src="../js/register.js"></script>
+                <button type="submit" class="btn btn-primary w-full btn-lg">Create Account</button>
+            </form>
 
+            <div class="auth-footer">
+                Already have an account? <a href="/frontend/pages/login.html">Log in</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="/frontend/js/api.js"></script>
+    <script src="/frontend/js/auth.js"></script>
+    <script>
+        // Pre-select role from URL
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('role') === 'mentor') selectRole('mentor');
+    </script>
 </body>
 </html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard — LearnFast</title>
+    <link rel="stylesheet" href="/frontend/css/global.css">
+    <link rel="stylesheet" href="/frontend/css/pages.css">
+</head>
+<body>
+    <div class="bg-animated"></div>
+
+    <nav class="navbar" id="navbar">
+        <a href="/frontend/pages/index.html" class="navbar-brand">
+            <span class="brand-icon">⚡</span> LearnFast
+        </a>
+        <div class="navbar-links" id="nav-links"></div>
+    </nav>
+
+    <div class="page-content">
+        <div class="container">
+            <div class="dashboard-header" id="dash-header" style="display:flex;justify-content:space-between;align-items:center;">
+                <div>
+                    <h1>Dashboard</h1>
+                    <p class="greeting" id="greeting">Loading...</p>
+                </div>
+                <a href="/frontend/pages/profile.html?id=me" class="btn btn-secondary btn-sm">👤 My Profile</a>
+            </div>
+
+            <div class="stats-grid" id="stats-grid">
+                <div class="glass-card stat-card animate-in">
+                    <div class="stat-icon">💬</div>
+                    <div class="stat-value" id="stat-conversations">0</div>
+                    <div class="stat-label">Conversations</div>
+                </div>
+                <div class="glass-card stat-card animate-in">
+                    <div class="stat-icon">📹</div>
+                    <div class="stat-value" id="stat-sessions">0</div>
+                    <div class="stat-label">Sessions</div>
+                </div>
+                <div class="glass-card stat-card animate-in">
+                    <div class="stat-icon">⏳</div>
+                    <div class="stat-value" id="stat-pending">0</div>
+                    <div class="stat-label">Pending</div>
+                </div>
+            </div>
+
+            <div class="dashboard-sections">
+                <div class="glass-card dash-section animate-in">
+                    <h3>📹 Recent Sessions</h3>
+                    <div id="recent-sessions">
+                        <div class="empty-state">
+                            <div class="empty-icon">📭</div>
+                            <p>No sessions yet</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="glass-card dash-section animate-in">
+                    <h3>💬 Recent Messages</h3>
+                    <div id="recent-messages">
+                        <div class="empty-state">
+                            <div class="empty-icon">💤</div>
+                            <p>No messages yet</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions for Students -->
+            <div class="mt-4" id="quick-actions" style="display:none;">
+                <h3 class="mb-2">Quick Actions</h3>
+                <div class="flex gap-2">
+                    <a href="/frontend/pages/mentors.html" class="btn btn-primary">🔍 Find a Mentor</a>
+                    <a href="/frontend/pages/chat.html" class="btn btn-secondary">💬 Open Chat</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/frontend/js/api.js"></script>
+    <script src="/frontend/js/dashboard.js"></script>
+</body>
+</html>
