@@ -39,6 +39,36 @@ public class DataInitializer {
                 admin.setBio("Platform administrator");
                 userRepository.save(admin);
             }
+
+            // Create test mentor if not exists
+            if (userRepository.findByUsername("mentor").isEmpty()) {
+                Role mentorRole = roleRepository.findByName("mentor").get();
+                User mentor = new User();
+                mentor.setUsername("mentor");
+                mentor.setEmail("mentor@learnfast.com");
+                mentor.setPassword(new BCryptPasswordEncoder().encode("password123"));
+                mentor.setRole(mentorRole);
+                mentor.setName("Ivan Petrov");
+                mentor.setAge(30);
+                mentor.setBio("Expert Math and Physics mentor with 5 years of experience.");
+                mentor.setAvatarUrl("https://i.pravatar.cc/150?u=mentor");
+                userRepository.save(mentor);
+            }
+
+            // Create test student if not exists
+            if (userRepository.findByUsername("student").isEmpty()) {
+                Role studentRole = roleRepository.findByName("student").get();
+                User student = new User();
+                student.setUsername("student");
+                student.setEmail("student@learnfast.com");
+                student.setPassword(new BCryptPasswordEncoder().encode("password123"));
+                student.setRole(studentRole);
+                student.setName("Georgi Ivanov");
+                student.setAge(20);
+                student.setBio("Enthusiastic student looking to improve my coding skills.");
+                student.setAvatarUrl("https://i.pravatar.cc/150?u=student");
+                userRepository.save(student);
+            }
         };
     }
 }

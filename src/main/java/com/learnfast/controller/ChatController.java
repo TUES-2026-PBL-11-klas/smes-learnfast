@@ -99,4 +99,14 @@ public class ChatController {
         messagingTemplate.convertAndSend("/topic/chat/" + receiverId, dto);
         messagingTemplate.convertAndSend("/topic/chat/" + senderId, dto);
     }
+
+    @MessageMapping("/chat.typing")
+    public void handleTyping(@Payload Map<String, Object> payload) {
+        Long senderId = Long.parseLong(payload.get("senderId").toString());
+        Long receiverId = Long.parseLong(payload.get("receiverId").toString());
+        boolean typing = (boolean) payload.get("typing");
+
+        messagingTemplate.convertAndSend("/topic/typing/" + receiverId,
+            Map.of("senderId", senderId, "typing", typing));
+    }
 }

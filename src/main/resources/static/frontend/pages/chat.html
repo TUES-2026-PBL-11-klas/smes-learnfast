@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Chat with mentors and students on LearnFast. Real-time messaging powered by WebSocket.">
     <title>Chat — LearnFast</title>
     <link rel="stylesheet" href="/frontend/css/global.css">
     <link rel="stylesheet" href="/frontend/css/pages.css">
@@ -16,6 +17,8 @@
         </a>
         <div class="navbar-links" id="nav-links"></div>
     </nav>
+
+    <div id="alert-container" style="position:fixed;top:5rem;right:1.5rem;z-index:9999;width:320px;"></div>
 
     <div class="chat-layout">
         <!-- Sidebar -->
@@ -33,7 +36,7 @@
         <!-- Main Chat Area -->
         <div class="chat-main" id="chat-main">
             <div class="chat-empty">
-                <div class="empty-icon">💬</div>
+                <div class="empty-icon pulse-animation">💬</div>
                 <h3>Select a conversation</h3>
                 <p class="text-muted">Choose a contact from the sidebar to start chatting</p>
             </div>

@@ -11,11 +11,33 @@
     text-align: center;
     padding: 2rem;
     position: relative;
+    animation: fadeIn 0.6s ease;
 }
 
 .hero-content {
     max-width: 700px;
-    animation: slideUp 0.8s ease;
+    animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.hero-content h1 .text-gradient {
+    background-size: 200% 200%;
+    animation: gradientShift 4s ease-in-out infinite;
+}
+
+.hero-content .subtitle {
+    animation: slideUp 0.8s ease 0.2s both;
+}
+
+.hero-buttons {
+    animation: slideUp 0.8s ease 0.4s both;
+}
+
+.hero-buttons .btn {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hero-buttons .btn:hover {
+    transform: translateY(-3px) scale(1.03);
 }
 
 .hero h1 {
@@ -46,6 +68,15 @@
     margin-top: 4rem;
     padding-top: 2rem;
     border-top: 1px solid var(--border-glass);
+    animation: slideUp 0.8s ease 0.6s both;
+}
+
+.hero-stat {
+    transition: transform 0.3s ease;
+}
+
+.hero-stat:hover {
+    transform: translateY(-4px);
 }
 
 .hero-stat {
@@ -90,6 +121,20 @@
 .feature-card {
     text-align: center;
     padding: 2rem;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.feature-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 40px rgba(79, 142, 247, 0.15);
+}
+
+.feature-icon {
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.feature-card:hover .feature-icon {
+    transform: scale(1.2) rotate(5deg);
 }
 
 .feature-icon {
@@ -120,7 +165,7 @@
     width: 100%;
     max-width: 440px;
     padding: 2.5rem;
-    animation: slideUp 0.5s ease;
+    animation: fadeInScale 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .auth-card h2 {
@@ -187,6 +232,7 @@
 .dashboard-header {
     padding: 2rem 0;
     margin-bottom: 2rem;
+    animation: slideUp 0.5s ease both;
 }
 
 .dashboard-header h1 {
@@ -314,6 +360,21 @@
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mentor-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3), 0 0 15px rgba(79, 142, 247, 0.1);
+    border-color: rgba(79, 142, 247, 0.2);
+}
+
+.mentor-card:hover .avatar {
+    transform: scale(1.1);
+}
+
+.mentor-card .avatar {
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .mentor-card-header {
@@ -348,6 +409,7 @@
     line-height: 1.5;
     display: -webkit-box;
     -webkit-line-clamp: 3;
+    line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
@@ -363,6 +425,7 @@
     text-align: center;
     padding: 3rem 2rem;
     margin-bottom: 2rem;
+    animation: fadeInScale 0.5s ease both;
 }
 
 .profile-header .avatar {
@@ -419,6 +482,7 @@
     grid-template-columns: 320px 1fr;
     height: calc(100vh - 4rem);
     margin-top: 4rem;
+    animation: fadeIn 0.4s ease;
 }
 
 .chat-sidebar {
@@ -432,6 +496,7 @@
 .chat-sidebar-header {
     padding: 1.25rem;
     border-bottom: 1px solid var(--border-glass);
+    animation: slideIn 0.3s ease;
 }
 
 .chat-sidebar-header h3 {
@@ -444,6 +509,11 @@
     padding: 0.5rem;
 }
 
+/* Chat contact slide-in animation */
+.chat-contact-animate {
+    animation: slideInLeft 0.35s ease both;
+}
+
 .chat-contact {
     display: flex;
     align-items: center;
@@ -451,16 +521,26 @@
     padding: 0.75rem;
     border-radius: var(--radius-sm);
     cursor: pointer;
-    transition: all var(--transition-fast);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid transparent;
 }
 
 .chat-contact:hover {
     background: var(--bg-glass-hover);
+    transform: translateX(4px);
 }
 
 .chat-contact.active {
     background: rgba(79, 142, 247, 0.1);
     border: 1px solid rgba(79, 142, 247, 0.2);
+}
+
+.chat-contact .avatar {
+    transition: transform 0.2s ease;
+}
+
+.chat-contact:hover .avatar {
+    transform: scale(1.1);
 }
 
 .chat-contact-info {
@@ -486,6 +566,16 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    transition: opacity 0.3s ease;
+}
+
+.chat-main-entering {
+    opacity: 0;
+}
+
+/* Chat header animation */
+.chat-header-animate {
+    animation: slideIn 0.3s ease;
 }
 
 .chat-header {
@@ -495,6 +585,15 @@
     align-items: center;
     gap: 0.75rem;
     background: var(--bg-glass);
+    backdrop-filter: blur(10px);
+}
+
+.chat-header .avatar {
+    transition: transform 0.3s ease;
+}
+
+.chat-header .avatar:hover {
+    transform: scale(1.15) rotate(5deg);
 }
 
 .chat-header-info h4 {
@@ -519,13 +618,37 @@
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
+    scroll-behavior: smooth;
 }
 
+/* Message animations */
 .chat-message {
     max-width: 70%;
     padding: 0.75rem 1rem;
     border-radius: var(--radius-md);
-    animation: slideUp 0.2s ease;
+    transition: transform 0.15s ease;
+}
+
+.chat-message:hover {
+    transform: scale(1.01);
+}
+
+/* Real-time message pop-in */
+.chat-message.sent.msg-animate-in {
+    animation: msgPopInSent 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.chat-message.received.msg-animate-in {
+    animation: msgPopInReceived 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* Staggered load animation for history */
+.chat-message.sent.msg-stagger-in {
+    animation: slideInRight 0.3s ease both;
+}
+
+.chat-message.received.msg-stagger-in {
+    animation: slideInLeft 0.3s ease both;
 }
 
 .chat-message.sent {
@@ -533,6 +656,7 @@
     background: var(--gradient-primary);
     color: white;
     border-bottom-right-radius: 4px;
+    box-shadow: 0 2px 8px rgba(79, 142, 247, 0.2);
 }
 
 .chat-message.received {
@@ -540,6 +664,7 @@
     background: var(--bg-glass);
     border: 1px solid var(--border-glass);
     border-bottom-left-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .chat-message .msg-text {
@@ -555,18 +680,78 @@
     text-align: right;
 }
 
+/* Chat input area animation */
+.chat-input-animate {
+    animation: slideUp 0.3s ease;
+}
+
 .chat-input-area {
     padding: 1rem 1.5rem;
     border-top: 1px solid var(--border-glass);
     display: flex;
     gap: 0.75rem;
     background: var(--bg-glass);
+    backdrop-filter: blur(10px);
 }
 
 .chat-input-area input {
     flex: 1;
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
+.chat-input-area input:focus {
+    box-shadow: 0 0 0 3px rgba(79, 142, 247, 0.15), 0 0 15px rgba(79, 142, 247, 0.1);
+}
+
+/* Send button */
+.chat-send-btn {
+    min-width: 48px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.chat-send-btn .send-icon {
+    display: inline-block;
+    transition: transform 0.2s ease;
+}
+
+.chat-send-btn:hover .send-icon {
+    transform: translateX(3px);
+}
+
+.chat-send-btn.sending {
+    transform: scale(0.92);
+    opacity: 0.7;
+}
+
+.chat-send-btn.sending .send-icon {
+    animation: slideInRight 0.4s ease infinite;
+}
+
+/* Start conversation prompt */
+.chat-start-prompt {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    gap: 0.5rem;
+    padding: 3rem;
+    text-align: center;
+    color: var(--text-muted);
+    animation: fadeInScale 0.5s ease;
+}
+
+.chat-start-icon {
+    font-size: 4rem;
+    animation: floatBubble 3s ease-in-out infinite;
+    margin-bottom: 0.5rem;
+}
+
+.chat-start-prompt strong {
+    color: var(--accent-blue);
+}
+
+/* Empty state */
 .chat-empty {
     display: flex;
     align-items: center;
@@ -575,11 +760,21 @@
     flex-direction: column;
     gap: 1rem;
     color: var(--text-muted);
+    animation: fadeInScale 0.6s ease;
 }
 
 .chat-empty .empty-icon {
     font-size: 5rem;
     opacity: 0.3;
+    animation: floatBubble 4s ease-in-out infinite;
+}
+
+.chat-empty h3 {
+    animation: slideUp 0.5s ease 0.2s both;
+}
+
+.chat-empty p {
+    animation: slideUp 0.5s ease 0.35s both;
 }
 
 /* === Video Page === */

@@ -8,7 +8,10 @@ import com.learnfast.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -44,7 +47,10 @@ public class ChatService {
     }
 
     public List<User> getConversationPartners(User user) {
-        return chatMessageRepository.findConversationPartners(user);
+        Set<User> partners = new HashSet<>();
+        partners.addAll(chatMessageRepository.findPartnersBySender(user));
+        partners.addAll(chatMessageRepository.findPartnersByReceiver(user));
+        return new ArrayList<>(partners);
     }
 
     public ChatMessageDto toDto(ChatMessage msg) {
