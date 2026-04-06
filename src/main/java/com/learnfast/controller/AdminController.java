@@ -2,7 +2,6 @@ package com.learnfast.controller;
 
 import com.learnfast.dto.UserDto;
 import com.learnfast.model.Subject;
-import com.learnfast.model.User;
 import com.learnfast.repository.SubjectRepository;
 import com.learnfast.service.AuthService;
 import com.learnfast.service.UserService;
