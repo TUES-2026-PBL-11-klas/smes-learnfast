@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.learnfast.model.Role;
 import com.learnfast.repository.ChatMessageRepository;
 import com.learnfast.repository.RoleRepository;
+import com.learnfast.repository.SessionRepository;
 import com.learnfast.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,9 +44,12 @@ class AuthControllerIntegrationTest {
     private RoleRepository roleRepository;
 
     @Autowired
+    private SessionRepository sessionRepository;
+    @Autowired
     private ChatMessageRepository chatMessagesRepository;
     @BeforeEach
     void setUp() {
+        sessionRepository.deleteAll();
         chatMessagesRepository.deleteAll();
         userRepository.deleteAll();
         // Ensure the "student" role exists
