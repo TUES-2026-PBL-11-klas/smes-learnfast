@@ -3,6 +3,7 @@ package com.learnfast.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.learnfast.model.Role;
 import com.learnfast.model.User;
+import com.learnfast.repository.ChatMessageRepository;
 import com.learnfast.repository.RoleRepository;
 import com.learnfast.repository.SessionRepository;
 import com.learnfast.repository.UserRepository;
@@ -36,6 +37,7 @@ class SessionControllerIntegrationTest {
     @Autowired private UserRepository userRepository;
     @Autowired private RoleRepository roleRepository;
     @Autowired private SessionRepository sessionRepository;
+    @Autowired private ChatMessageRepository chatMessageRepository;
 
     private User student;
     private User mentor;
@@ -45,6 +47,7 @@ class SessionControllerIntegrationTest {
     @BeforeEach
     void setUp() throws Exception {
         sessionRepository.deleteAll();
+        chatMessageRepository.deleteAll();
         userRepository.deleteAll();
 
         // Ensure roles exist
