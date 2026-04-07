@@ -8,7 +8,6 @@ class LearnFastApplicationTest {
     @Test
     void contextLoads() {
         assertDoesNotThrow(() -> {
-            // Basic smoke test
         });
     }
 }
