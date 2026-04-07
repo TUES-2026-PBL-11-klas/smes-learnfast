@@ -1,7 +1,5 @@
-package com.learnfast;
+package com.learnfast.service;
 
-import com.learnfast.model.Role;
-import com.learnfast.service.SessionService;
 import com.learnfast.dto.SessionDto;
 import com.learnfast.model.MentorSession;
 import com.learnfast.model.User;

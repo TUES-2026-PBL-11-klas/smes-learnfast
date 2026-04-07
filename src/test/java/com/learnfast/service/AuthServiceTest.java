@@ -1,6 +1,5 @@
-package com.learnfast;
+package com.learnfast.service;
 
-import com.learnfast.service.AuthService;
 import com.learnfast.model.Role;
 import com.learnfast.model.User;
 import com.learnfast.repository.RoleRepository;

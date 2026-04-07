@@ -1,4 +1,4 @@
-package com.learnfast;
+package com.learnfast.service;
 
 import com.learnfast.service.UserService;
 import com.learnfast.model.Role;

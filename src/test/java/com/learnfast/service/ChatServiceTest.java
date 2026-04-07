@@ -1,6 +1,5 @@
-package com.learnfast;
+package com.learnfast.service;
 
-import com.learnfast.service.ChatService;
 import com.learnfast.dto.ChatMessageDto;
 import com.learnfast.model.ChatMessage;
 import com.learnfast.model.User;

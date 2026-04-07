@@ -1,7 +1,6 @@
-package com.learnfast;
+package com.learnfast.service;
 
 
-import com.learnfast.service.ReviewService;
 import com.learnfast.dto.ReviewDto;
 import com.learnfast.model.Review;
 import com.learnfast.model.Role;
