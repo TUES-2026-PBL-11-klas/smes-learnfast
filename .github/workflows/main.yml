@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [ "main", "UI", "virtualization" ]
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -37,18 +40,32 @@ jobs:
           name: jacoco-report
           path: target/site/jacoco/
 
-      - name: Log in to GHCR
+      - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
+          context: .
           push: true
-          tags: ghcr.io/stefcho69/smes-learnfast:latest
+          tags: |
+            stefcho69/smes-learnfast:latest
+            stefcho69/smes-learnfast:${{ github.sha }}
+
+      - name: Update deployment image tag
+        run: |
+          sed -i "s|image: .*|image: stefcho69/smes-learnfast:${{ github.sha }}|" \
+            learnfast-infra/k8s/base/deployment.yaml
+
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+
+          git add learnfast-infra/k8s/base/deployment.yaml
+          git commit -m "chore: update image to ${{ github.sha }}" || true
+          git push
 
       # ── Discord: Success ─────────────────────────────────────────
       - name: Notify Discord — Success
