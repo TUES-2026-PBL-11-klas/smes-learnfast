@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: learnfast-api
-          image: stefcho69/smes-learnfast:latest
+          image: ststts/smes-learnfast:latest
           ports:
             - containerPort: 8080
           env:

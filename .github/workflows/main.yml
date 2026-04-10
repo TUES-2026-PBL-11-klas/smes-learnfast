@@ -53,12 +53,12 @@ jobs:
           context: .
           push: true
           tags: |
-            stefcho69/smes-learnfast:latest
-            stefcho69/smes-learnfast:${{ github.sha }}
+            ststts/smes-learnfast:latest
+            ststts/smes-learnfast:${{ github.sha }}
 
       - name: Update deployment image tag
         run: |
-          sed -i "s|image: .*|image: stefcho69/smes-learnfast:${{ github.sha }}|" \
+          sed -i "s|image: .*|image: ststts/smes-learnfast:${{ github.sha }}|" \
             learnfast-infra/k8s/base/deployment.yaml
 
           git config user.name "github-actions"
