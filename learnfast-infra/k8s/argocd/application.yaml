@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/Stefcho69/smes-learnfast.git
+    repoURL: https://github.com/stefcho69/smes-learnfast.git
     targetRevision: main
     path: learnfast-infra/k8s/base
   destination:
