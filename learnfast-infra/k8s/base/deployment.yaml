@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: learnfast-api
+  namespace: learnfast
+  labels:
+    app: learnfast-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: learnfast-api
+  template:
+    metadata:
+      labels:
+        app: learnfast-api
+    spec:
+      containers:
+        - name: learnfast-api
+          image: ghcr.io/TUES-2026-PBL-11-klas/smes-learnfast:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 15
