@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: learnfast-api
-          image: ghcr.io/TUES-2026-PBL-11-klas/smes-learnfast:latest
+          image: ghcr.io/Stefcho69/smes-learnfast:latest
           ports:
             - containerPort: 8080
           env:
