@@ -124,7 +124,8 @@ terraform destroy -auto-approve
 | Оркестрация | Kubernetes (Kind) | 0.20+ |
 | IaC | Terraform | 1.5+ |
 | JDK Runtime | Eclipse Temurin | 17 |
-
+| Мониторинг | Prometheus | 2.x |
+| Визуализация | Grafana | 10.x |
 ---
 
 ## 📡 API Endpoints
