@@ -1,6 +1,8 @@
 package com.learnfast.service;
 
 import com.learnfast.dto.ReviewDto;
+import com.learnfast.exception.BadRequestException;
+import com.learnfast.exception.ResourceNotFoundException;
 import com.learnfast.model.Review;
 import com.learnfast.model.User;
 import com.learnfast.repository.ReviewRepository;
@@ -23,19 +25,19 @@ public class ReviewService {
     }
 
     public Review addReview(Long studentId, Long mentorId, Integer rating, String comment) {
-        User student = userRepository.findById(studentId).orElseThrow(() -> new RuntimeException("Student not found"));
-        User mentor = userRepository.findById(mentorId).orElseThrow(() -> new RuntimeException("Mentor not found"));
+        User student = userRepository.findById(studentId).orElseThrow(() -> new ResourceNotFoundException("Student", studentId));
+        User mentor = userRepository.findById(mentorId).orElseThrow(() -> new ResourceNotFoundException("Mentor", mentorId));
 
         if (!"mentor".equals(mentor.getRole().getName())) {
-            throw new RuntimeException("Target user is not a mentor");
+            throw new BadRequestException("Target user is not a mentor");
         }
 
         if (reviewRepository.existsByStudentAndMentor(student, mentor)) {
-            throw new RuntimeException("You have already reviewed this mentor");
+            throw new BadRequestException("You have already reviewed this mentor");
         }
 
         if (rating == null || rating < 1 || rating > 5) {
-            throw new RuntimeException("Rating must be between 1 and 5");
+            throw new BadRequestException("Rating must be between 1 and 5");
         }
 
         Review review = new Review();
@@ -49,7 +51,7 @@ public class ReviewService {
     }
 
     public List<ReviewDto> getReviewsForMentor(Long mentorId) {
-        User mentor = userRepository.findById(mentorId).orElseThrow(() -> new RuntimeException("Mentor not found"));
+        User mentor = userRepository.findById(mentorId).orElseThrow(() -> new ResourceNotFoundException("Mentor", mentorId));
         return reviewRepository.findByMentorOrderByCreatedAtDesc(mentor)
                 .stream().map(this::toDto).collect(Collectors.toList());
     }

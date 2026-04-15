@@ -1,6 +1,7 @@
 package com.learnfast.service;
 
 import com.learnfast.dto.ChatMessageDto;
+import com.learnfast.exception.ResourceNotFoundException;
 import com.learnfast.model.ChatMessage;
 import com.learnfast.model.User;
 import com.learnfast.repository.ChatMessageRepository;
@@ -27,7 +28,7 @@ public class ChatService {
 
     public ChatMessage saveMessage(User sender, Long receiverId, String message) {
         User receiver = userRepository.findById(receiverId)
-            .orElseThrow(() -> new RuntimeException("Receiver not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("Receiver", receiverId));
 
         ChatMessage chatMessage = new ChatMessage();
         chatMessage.setSender(sender);
@@ -40,7 +41,7 @@ public class ChatService {
 
     public List<ChatMessageDto> getConversation(User currentUser, Long otherUserId) {
         User otherUser = userRepository.findById(otherUserId)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("User", otherUserId));
 
         return chatMessageRepository.findConversation(currentUser, otherUser)
             .stream().map(this::toDto).collect(Collectors.toList());

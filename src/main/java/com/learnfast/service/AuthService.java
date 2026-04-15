@@ -1,5 +1,6 @@
 package com.learnfast.service;
 
+import com.learnfast.exception.BadRequestException;
 import com.learnfast.model.Role;
 import com.learnfast.model.User;
 import com.learnfast.repository.RoleRepository;
@@ -24,10 +25,10 @@ public class AuthService {
     public User register(String username, String email, String password,
                          String roleName, String name, Integer age, String bio) {
         if (userRepository.existsByUsername(username)) {
-            throw new RuntimeException("Username already exists");
+            throw new BadRequestException("Username already exists");
         }
         if (userRepository.existsByEmail(email)) {
-            throw new RuntimeException("Email already exists");
+            throw new BadRequestException("Email already exists");
         }
 
         Role role = roleRepository.findByName(roleName)
@@ -47,10 +48,10 @@ public class AuthService {
 
     public User login(String username, String password) {
         User user = userRepository.findByUsername(username)
-            .orElseThrow(() -> new RuntimeException("Invalid username or password"));
+            .orElseThrow(() -> new BadRequestException("Invalid username or password"));
 
         if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new RuntimeException("Invalid username or password");
+            throw new BadRequestException("Invalid username or password");
         }
 
         return user;

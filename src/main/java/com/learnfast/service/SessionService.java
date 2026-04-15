@@ -2,6 +2,8 @@ package com.learnfast.service;
 
 import com.learnfast.dto.SessionDto;
 import com.learnfast.dto.UserDto;
+import com.learnfast.exception.ResourceNotFoundException;
+import com.learnfast.exception.UnauthorizedException;
 import com.learnfast.model.MentorSession;
 import com.learnfast.model.User;
 import com.learnfast.repository.SessionRepository;
@@ -25,7 +27,7 @@ public class SessionService {
 
     public MentorSession createSession(User student, Long mentorId) {
         User mentor = userRepository.findById(mentorId)
-            .orElseThrow(() -> new RuntimeException("Mentor not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("Mentor", mentorId));
 
         MentorSession session = new MentorSession();
         session.setStudent(student);
@@ -48,9 +50,9 @@ public class SessionService {
 
     public MentorSession rejectSession(Long sessionId, User mentor) {
         MentorSession session = sessionRepository.findById(sessionId)
-            .orElseThrow(() -> new RuntimeException("Session not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("Session", sessionId));
         if (!session.getMentor().getId().equals(mentor.getId())) {
-            throw new RuntimeException("Not authorized");
+            throw new UnauthorizedException("Not authorized");
         }
         session.setStatus(MentorSession.Status.REJECTED);
         return sessionRepository.save(session);

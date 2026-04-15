@@ -79,7 +79,7 @@ class ChatServiceTest {
 
         assertThatThrownBy(() -> chatService.saveMessage(sender, 99L, "Hi!"))
                 .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("Receiver not found");
+                .hasMessageContaining("Receiver with id 99 not found");
 
         verify(chatMessageRepository, never()).save(any());
     }
@@ -112,7 +112,7 @@ class ChatServiceTest {
 
         assertThatThrownBy(() -> chatService.getConversation(sender, 99L))
                 .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("User not found");
+                .hasMessageContaining("User with id 99 not found");
     }
 
     @Test

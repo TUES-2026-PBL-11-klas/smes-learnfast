@@ -94,7 +94,7 @@ class ReviewServiceTest {
 
         assertThatThrownBy(() -> reviewService.addReview(99L, 2L, 4, "Good"))
                 .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("Student not found");
+                .hasMessageContaining("Student with id 99 not found");
 
         verify(reviewRepository, never()).save(any());
     }
@@ -106,7 +106,7 @@ class ReviewServiceTest {
 
         assertThatThrownBy(() -> reviewService.addReview(1L, 99L, 4, "Good"))
                 .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("Mentor not found");
+                .hasMessageContaining("Mentor with id 99 not found");
 
         verify(reviewRepository, never()).save(any());
     }
@@ -203,7 +203,7 @@ class ReviewServiceTest {
 
         assertThatThrownBy(() -> reviewService.getReviewsForMentor(99L))
                 .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("Mentor not found");
+                .hasMessageContaining("Mentor with id 99 not found");
     }
 
     @Test
