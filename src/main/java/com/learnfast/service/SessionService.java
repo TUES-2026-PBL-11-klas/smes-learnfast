@@ -19,10 +19,14 @@ public class SessionService {
 
     private final SessionRepository sessionRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
-    public SessionService(SessionRepository sessionRepository, UserRepository userRepository) {
+    public SessionService(SessionRepository sessionRepository,
+                          UserRepository userRepository,
+                          NotificationService notificationService) {
         this.sessionRepository = sessionRepository;
         this.userRepository = userRepository;
+        this.notificationService = notificationService;
     }
 
     public MentorSession createSession(User student, Long mentorId) {
@@ -35,7 +39,10 @@ public class SessionService {
         session.setStatus(MentorSession.Status.PENDING);
         session.setRoomId(UUID.randomUUID().toString());
 
-        return sessionRepository.save(session);
+        MentorSession saved = sessionRepository.save(session);
+        notificationService.sendNotification(mentor.getId(),
+            "New session request from " + student.getUsername());
+        return saved;
     }
 
     public MentorSession acceptSession(Long sessionId, User mentor) {
@@ -45,7 +52,10 @@ public class SessionService {
             throw new RuntimeException("Not authorized");
         }
         session.setStatus(MentorSession.Status.ACCEPTED);
-        return sessionRepository.save(session);
+        MentorSession saved = sessionRepository.save(session);
+        notificationService.sendNotification(session.getStudent().getId(),
+            "Your session with " + mentor.getUsername() + " was accepted");
+        return saved;
     }
 
     public MentorSession rejectSession(Long sessionId, User mentor) {
@@ -55,7 +65,10 @@ public class SessionService {
             throw new UnauthorizedException("Not authorized");
         }
         session.setStatus(MentorSession.Status.REJECTED);
-        return sessionRepository.save(session);
+        MentorSession saved = sessionRepository.save(session);
+        notificationService.sendNotification(session.getStudent().getId(),
+            "Your session with " + mentor.getUsername() + " was rejected");
+        return saved;
     }
 
     public List<SessionDto> getUserSessions(User user) {

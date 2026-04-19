@@ -66,6 +66,17 @@
                 </div>
             </div>
 
+            <!-- Call History -->
+            <div class="glass-card mt-4 animate-in">
+                <h3>📞 Call History</h3>
+                <div id="call-history" style="margin-top:0.75rem;">
+                    <div class="empty-state">
+                        <div class="empty-icon">📵</div>
+                        <p>No calls yet</p>
+                    </div>
+                </div>
+            </div>
+
             <!-- Quick Actions for Students -->
             <div class="mt-4" id="quick-actions" style="display:none;">
                 <h3 class="mb-2">Quick Actions</h3>
@@ -77,7 +88,10 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
     <script src="/frontend/js/api.js"></script>
+    <script src="/frontend/js/call-manager.js"></script>
     <script src="/frontend/js/dashboard.js"></script>
 </body>
 </html>

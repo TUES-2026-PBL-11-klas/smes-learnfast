@@ -11,6 +11,7 @@ public class ChatMessageDto {
     private String receiverName;
     private String receiverUsername;
     private String message;
+    private String messageType;
     private LocalDateTime sentAt;
 
     public Long getId() { return id; }
@@ -29,6 +30,8 @@ public class ChatMessageDto {
     public void setReceiverUsername(String receiverUsername) { this.receiverUsername = receiverUsername; }
     public String getMessage() { return message; }
     public void setMessage(String message) { this.message = message; }
+    public String getMessageType() { return messageType; }
+    public void setMessageType(String messageType) { this.messageType = messageType; }
     public LocalDateTime getSentAt() { return sentAt; }
     public void setSentAt(LocalDateTime sentAt) { this.sentAt = sentAt; }
 }

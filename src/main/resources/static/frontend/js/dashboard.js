@@ -35,7 +35,7 @@
                     }[s.status] || 'badge-blue';
 
                     return `
-                        <div class="session-item" onclick="${s.status === 'ACCEPTED' ? `window.location.href='/frontend/pages/video.html?room=${s.roomId}'` : ''}">
+                        <div class="session-item">
                             <div class="avatar avatar-sm">${initials}</div>
                             <div class="session-info">
                                 <h4>${other.name}</h4>
@@ -52,6 +52,39 @@
             }
         }
     } catch (e) { console.error('Sessions error:', e); }
+
+    // Load call history
+    try {
+        const calls = await API.get('/api/calls');
+        if (Array.isArray(calls) && calls.length > 0) {
+            const container = document.getElementById('call-history');
+            container.innerHTML = calls.slice(0, 10).map(c => {
+                const icons = { ACCEPTED: '📞', DECLINED: '📵', MISSED: '📴', ENDED: '✅', RINGING: '⏳' };
+                const colors = { ACCEPTED: '#22c55e', DECLINED: '#ef4444', MISSED: '#f59e0b', ENDED: '#6366f1', RINGING: '#94a3b8' };
+                const labels = { ACCEPTED: 'Accepted', DECLINED: 'Declined', MISSED: 'Missed', ENDED: 'Ended', RINGING: 'Ringing' };
+                const icon  = icons[c.status]  || '📞';
+                const color = colors[c.status] || '#94a3b8';
+                const label = labels[c.status] || c.status;
+                const dir   = c.outgoing ? '↗ Outgoing' : '↙ Incoming';
+                const dur   = c.durationSeconds > 0
+                    ? `${Math.floor(c.durationSeconds/60)}:${String(c.durationSeconds%60).padStart(2,'0')}`
+                    : '';
+                const time  = new Date(c.startedAt).toLocaleString([], { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+                return `
+                    <div class="session-item" style="gap:0.75rem;">
+                        <div style="font-size:1.4rem;min-width:32px;text-align:center;">${icon}</div>
+                        <div class="session-info">
+                            <h4>${c.otherName}</h4>
+                            <p style="color:rgba(255,255,255,0.4);font-size:0.78rem;">${dir} · ${time}</p>
+                        </div>
+                        <div style="text-align:right;margin-left:auto;">
+                            <span style="color:${color};font-size:0.82rem;font-weight:600;">${label}</span>
+                            ${dur ? `<div style="color:rgba(255,255,255,0.35);font-size:0.75rem;">${dur}</div>` : ''}
+                        </div>
+                    </div>`;
+            }).join('');
+        }
+    } catch (e) { console.error('Call history error:', e); }
 
     // Load conversations
     try {

@@ -100,6 +100,16 @@ public class ChatController {
         messagingTemplate.convertAndSend("/topic/chat/" + senderId, dto);
     }
 
+    /**
+     * Relay call signals (INVITE / ACCEPTED / DECLINED) between peers.
+     * Payload must include targetUserId so we can route to the right topic.
+     */
+    @MessageMapping("/call.signal")
+    public void handleCallSignal(@Payload Map<String, Object> payload) {
+        Long targetUserId = Long.parseLong(payload.get("targetUserId").toString());
+        messagingTemplate.convertAndSend("/topic/call/" + targetUserId, payload);
+    }
+
     @MessageMapping("/chat.typing")
     public void handleTyping(@Payload Map<String, Object> payload) {
         Long senderId = Long.parseLong(payload.get("senderId").toString());

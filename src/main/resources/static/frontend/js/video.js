@@ -1,127 +1,346 @@
-// LearnFast — Video (WebRTC via PeerJS)
+// LearnFast — Video Call  (WebRTC via PeerJS)
+// ?role=caller  → dials the callee
+// ?role=callee  → waits and answers
 
-let localStream = null;
-let peer = null;
-let currentCall = null;
-let micEnabled = true;
-let camEnabled = true;
+let localStream   = null;
+let peer          = null;
+let currentCall   = null;
+let retryTimer    = null;
+let callTimer     = null;    // elapsed time counter
+let callSeconds   = 0;
+let micOn         = true;
+let camOn         = true;
+let connected     = false;
+let pendingCall   = null;    // call attempt in flight
+let myPeerId      = null;
+let otherPeerId   = null;
+let myRole        = null;
+let myRoomId      = null;
 
-(async function() {
+// Beacon fallback: if page closes without clicking End, mark as MISSED/ENDED
+window.addEventListener('pagehide', () => {
+    const params = new URLSearchParams(window.location.search);
+    const cId    = parseInt(params.get('callId') || '0', 10);
+    if (!cId) return;
+    const status = connected ? 'ENDED' : 'MISSED';
+    const body   = JSON.stringify({ status, durationSeconds: connected ? callSeconds : 0 });
+    try { navigator.sendBeacon(`/api/calls/${cId}/status-beacon`, body); } catch (_) {}
+});
+
+const ICE = {
+    config: {
+        iceServers: [
+            { urls: 'stun:stun.l.google.com:19302' },
+            { urls: 'stun:stun1.l.google.com:19302' },
+            { urls: 'stun:stun2.l.google.com:19302' },
+            { urls: 'stun:stun3.l.google.com:19302' },
+        ]
+    }
+};
+
+(async function init() {
     const user = await API.requireAuth();
     if (!user) return;
 
-    const params = new URLSearchParams(window.location.search);
-    const roomId = params.get('room');
+    const params  = new URLSearchParams(window.location.search);
+    const roomId  = params.get('room');
+    const role    = params.get('role') || 'callee';
+    const partner = params.get('partner') || '';
+    const callId  = parseInt(params.get('callId') || '0', 10);
 
-    if (!roomId) {
-        document.getElementById('video-status').textContent = 'No room specified. Go to Dashboard to start/join a session.';
+    if (!roomId) { setStatus('No room ID', 'error'); return; }
+
+    myRole   = role;
+    myRoomId = roomId;
+
+    // Show partner name in waiting screen
+    if (partner) {
+        const el = document.getElementById('remote-name-label');
+        const av = document.getElementById('remote-avatar');
+        if (el) el.textContent = `Waiting for ${partner}…`;
+        if (av) av.textContent = partner[0].toUpperCase();
+    }
+
+    setStatus('Requesting camera & mic…', '');
+
+    try {
+        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+    } catch (e) {
+        setStatus('Camera / mic denied', 'error');
+        showError('Could not access your camera or microphone. Please allow access and try again.');
         return;
     }
 
-    try {
-        // Get local media
-        document.getElementById('video-status').textContent = 'Accessing camera and microphone...';
-        localStream = await navigator.mediaDevices.getUserMedia({
-            video: true,
-            audio: true
-        });
-        document.getElementById('local-video').srcObject = localStream;
+    const localVideo = document.getElementById('local-video');
+    if (localVideo) localVideo.srcObject = localStream;
 
-        // Create peer with room-based ID
-        const peerId = `learnfast-${roomId}-${user.id}`;
-        peer = new Peer(peerId);
+    // ── PeerJS setup ──────────────────────────────────────────────────────────
+    // Use a deterministic ID so caller and callee can find each other without
+    // extra signalling. If the ID happens to still be lingering on the broker
+    // from a previous session (common after reload), we retry with the same
+    // id after a short delay.
+    const baseMyId    = `lf-${roomId}-${role}`;
+    const baseOtherId = `lf-${roomId}-${role === 'caller' ? 'callee' : 'caller'}`;
+    otherPeerId       = baseOtherId;
 
-        peer.on('open', (id) => {
-            document.getElementById('video-status').textContent = 'Connected! Waiting for peer to join...';
+    _connectPeer(baseMyId, /*isFallback*/ false);
 
-            // Try to call the other person (we don't know their ID, so we try both patterns)
-            // The trick: both users connect, one calls the other
-            setTimeout(() => {
-                // Try calling potential peer IDs
-                tryCall(roomId, user.id);
-            }, 2000);
-        });
-
-        peer.on('call', (call) => {
-            document.getElementById('video-status').textContent = 'Incoming call...';
-            call.answer(localStream);
-            handleCall(call);
-        });
-
-        peer.on('error', (err) => {
-            console.error('Peer error:', err);
-            if (err.type === 'peer-unavailable') {
-                document.getElementById('video-status').textContent = 'Waiting for peer to join...';
-            }
-        });
-
-    } catch (err) {
-        console.error('Media error:', err);
-        document.getElementById('video-status').textContent =
-            'Could not access camera/mic. Please grant permissions and try again.';
-    }
+    // Make local tile draggable (PiP)
+    _makeDraggable(document.getElementById('tile-local'));
 })();
 
-async function tryCall(roomId, myId) {
-    // Get sessions to find the other user
-    try {
-        const sessions = await API.get('/api/sessions');
-        const session = sessions.find(s => s.roomId === roomId);
-        if (session) {
-            const otherId = session.student.id === parseInt(myId) ?
-                session.mentor.id : session.student.id;
-            const otherPeerId = `learnfast-${roomId}-${otherId}`;
-
-            const call = peer.call(otherPeerId, localStream);
-            if (call) {
-                handleCall(call);
-            }
-        }
-    } catch(e) {
-        console.error('Could not find peer:', e);
+// ── Create PeerJS instance and wire up handlers ───────────────────────────────
+function _connectPeer(id, isFallback) {
+    if (peer && !peer.destroyed) {
+        try { peer.destroy(); } catch (_) {}
     }
+
+    peer = new Peer(id, { debug: 0, ...ICE });
+    myPeerId = id;
+
+    peer.on('open', (openId) => {
+        console.log('Peer open with id:', openId);
+        if (myRole === 'caller') {
+            setStatus('Ringing…', 'calling');
+            _dial(otherPeerId);
+            // Re-dial every 3s while waiting for callee to come online.
+            clearInterval(retryTimer);
+            retryTimer = setInterval(() => _dial(otherPeerId), 5000);
+        } else {
+            // Callee only LISTENS for an incoming peer.call(). The caller's
+            // retry timer will keep re-dialing until we're online.
+            // (Having both sides dial would create duplicate MediaConnections.)
+            setStatus('Ready — waiting for caller', 'calling');
+        }
+    });
+
+    peer.on('call', (call) => {
+        console.log('Incoming peer call from', call.peer);
+        // Answer with our local stream. Don't clear the retry timer yet —
+        // we only consider ourselves connected once we receive a stream.
+        try {
+            call.answer(localStream);
+        } catch (e) {
+            console.error('answer failed', e);
+            return;
+        }
+        _attach(call);
+    });
+
+    peer.on('error', (err) => {
+        console.warn('PeerJS error:', err && err.type, err && err.message);
+        if (!err) return;
+
+        // peer-unavailable: the other side isn't connected yet. That's fine —
+        // the retry timer will keep trying.
+        if (err.type === 'peer-unavailable') return;
+
+        // unavailable-id: our own deterministic ID is still lingering on the
+        // broker from a previous session (typical after a page reload).
+        // Wait a bit and re-create the peer with the SAME id so the other
+        // side's deterministic dial still finds us.
+        if (err.type === 'unavailable-id') {
+            if (isFallback) {
+                showError('Could not register peer ID. Please retry.');
+                return;
+            }
+            console.log('ID still lingering — retrying in 2s with same id', id);
+            setTimeout(() => _connectPeer(id, /*isFallback*/ true), 2000);
+            return;
+        }
+
+        // network / server errors — try to reconnect once
+        if (err.type === 'network' || err.type === 'disconnected' || err.type === 'server-error') {
+            if (peer && !peer.destroyed && !peer.disconnected) {
+                try { peer.reconnect(); } catch (_) {}
+            }
+            return;
+        }
+
+        if (!connected) showError(`Connection error (${err.type}). Click Retry.`);
+    });
+
+    peer.on('disconnected', () => {
+        console.log('Peer disconnected — attempting reconnect');
+        if (peer && !peer.destroyed) {
+            try { peer.reconnect(); } catch (_) {}
+        }
+    });
+
+    peer.on('close', () => {
+        if (!connected) console.log('Peer closed before connection');
+    });
 }
 
-function handleCall(call) {
+// ── Dial (both sides retry — whoever is online first wins) ────────────────────
+function _dial(otherId) {
+    if (!peer || peer.destroyed || connected || !localStream) return;
+
+    // Close the previous unanswered attempt to avoid duplicate streams.
+    // (Safe: if the previous attempt had actually connected, `connected`
+    // would already be true and we would have returned above.)
+    if (pendingCall) {
+        try { pendingCall.close(); } catch (_) {}
+        pendingCall = null;
+    }
+
+    let call;
+    try {
+        call = peer.call(otherId, localStream);
+    } catch (e) {
+        console.warn('peer.call threw', e);
+        return;
+    }
+    if (!call) return;
+
+    pendingCall = call;
+
+    call.on('stream', (remoteStream) => {
+        if (connected) return;
+        clearInterval(retryTimer);
+        retryTimer = null;
+        pendingCall = null;
+        _attach(call);
+        const rv = document.getElementById('remote-video');
+        if (rv) rv.srcObject = remoteStream;
+        _onConnected();
+    });
+
+    call.on('error', (err) => console.warn('dial error', err && err.type));
+    call.on('close', () => {
+        if (pendingCall === call) pendingCall = null;
+    });
+}
+
+// ── Attach call events once we've picked up or originated a call ──────────────
+function _attach(call) {
     currentCall = call;
 
     call.on('stream', (remoteStream) => {
-        document.getElementById('remote-video').srcObject = remoteStream;
-        document.getElementById('remote-label').textContent = 'Connected';
-        document.getElementById('video-status').textContent = '🟢 In call';
+        if (connected) return;
+        clearInterval(retryTimer);
+        retryTimer = null;
+        const rv = document.getElementById('remote-video');
+        if (rv) rv.srcObject = remoteStream;
+        _onConnected();
     });
 
     call.on('close', () => {
-        document.getElementById('video-status').textContent = 'Call ended';
-        document.getElementById('remote-label').textContent = 'Disconnected';
+        if (connected) {
+            setStatus('Call ended', '');
+            _hideWaiting(false);
+        }
     });
 
-    call.on('error', (err) => {
-        console.error('Call error:', err);
-    });
+    call.on('error', (err) => console.error('call error', err));
 }
 
+// ── On first stream received ──────────────────────────────────────────────────
+function _onConnected() {
+    connected = true;
+    clearInterval(retryTimer);
+    retryTimer = null;
+    setStatus('In call', 'connected');
+    _hideWaiting(true);
+
+    // Start elapsed timer
+    callSeconds = 0;
+    if (callTimer) clearInterval(callTimer);
+    callTimer = setInterval(() => {
+        callSeconds++;
+        const m = String(Math.floor(callSeconds / 60)).padStart(2, '0');
+        const s = String(callSeconds % 60).padStart(2, '0');
+        const el = document.getElementById('vc-timer');
+        if (el) el.textContent = `${m}:${s}`;
+    }, 1000);
+}
+
+function _hideWaiting(hide) {
+    const w = document.getElementById('vc-waiting');
+    const l = document.getElementById('remote-label');
+    if (w) w.classList.toggle('hidden', hide);
+    if (l) l.style.display = hide ? 'block' : 'none';
+}
+
+// ── Controls ──────────────────────────────────────────────────────────────────
 function toggleMic() {
     if (!localStream) return;
-    micEnabled = !micEnabled;
-    localStream.getAudioTracks().forEach(t => t.enabled = micEnabled);
-    const btn = document.getElementById('btn-mic');
-    btn.textContent = micEnabled ? '🎤' : '🔇';
-    btn.classList.toggle('active', !micEnabled);
+    micOn = !micOn;
+    localStream.getAudioTracks().forEach(t => t.enabled = micOn);
+    const btn  = document.getElementById('btn-mic');
+    const icon = document.getElementById('local-muted-icon');
+    if (btn)  btn.classList.toggle('off', !micOn);
+    if (btn)  btn.textContent = micOn ? '🎤' : '🔇';
+    if (icon) icon.classList.toggle('visible', !micOn);
 }
 
 function toggleCamera() {
     if (!localStream) return;
-    camEnabled = !camEnabled;
-    localStream.getVideoTracks().forEach(t => t.enabled = camEnabled);
-    const btn = document.getElementById('btn-camera');
-    btn.textContent = camEnabled ? '📷' : '📷';
-    btn.classList.toggle('active', !camEnabled);
+    camOn = !camOn;
+    localStream.getVideoTracks().forEach(t => t.enabled = camOn);
+    const btn = document.getElementById('btn-cam');
+    if (btn) btn.classList.toggle('off', !camOn);
+    if (btn) btn.textContent = camOn ? '📷' : '🚫';
 }
 
-function endCall() {
-    if (currentCall) currentCall.close();
-    if (localStream) localStream.getTracks().forEach(t => t.stop());
-    if (peer) peer.destroy();
+async function endCall() {
+    clearInterval(retryTimer); retryTimer = null;
+    clearInterval(callTimer);  callTimer  = null;
+    if (pendingCall) { try { pendingCall.close(); } catch (_) {} pendingCall = null; }
+    if (currentCall) { try { currentCall.close(); } catch (_) {} currentCall = null; }
+    if (localStream) { localStream.getTracks().forEach(t => { try { t.stop(); } catch (_) {} }); }
+    if (peer && !peer.destroyed) { try { peer.destroy(); } catch (_) {} }
+
+    // Persist call record — await so the request completes before navigation
+    const params   = new URLSearchParams(window.location.search);
+    const cId      = parseInt(params.get('callId') || '0', 10);
+    const wasConnected = connected;
+    const dur      = wasConnected ? callSeconds : 0;
+    if (cId) {
+        try {
+            await API.put(`/api/calls/${cId}/status`, {
+                status: wasConnected ? 'ENDED' : 'MISSED',
+                durationSeconds: dur
+            });
+        } catch (_) {}
+    }
+
     window.location.href = '/frontend/pages/dashboard.html';
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function setStatus(msg, state) {
+    const el = document.getElementById('vc-status');
+    if (!el) return;
+    el.textContent = msg;
+    el.className = 'vc-status-pill' + (state ? ` ${state}` : '');
+}
+
+function showError(msg) {
+    const overlay = document.getElementById('vc-error-overlay');
+    const txt     = document.getElementById('vc-error-msg');
+    if (txt)     txt.textContent = msg;
+    if (overlay) overlay.classList.add('visible');
+    setStatus('Disconnected', 'error');
+}
+
+function _makeDraggable(el) {
+    if (!el) return;
+    let ox = 0, oy = 0;
+    el.addEventListener('mousedown', (e) => {
+        const rect = el.getBoundingClientRect();
+        ox = e.clientX - rect.left; oy = e.clientY - rect.top;
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+    });
+    function onMove(e) {
+        el.style.right  = 'auto';
+        el.style.bottom = 'auto';
+        el.style.left   = (e.clientX - ox) + 'px';
+        el.style.top    = (e.clientY - oy) + 'px';
+    }
+    function onUp() {
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+    }
 }

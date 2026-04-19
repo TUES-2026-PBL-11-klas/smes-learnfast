@@ -37,6 +37,22 @@ public class User {
     @Column(length = 255)
     private String avatarUrl;
 
+    @Column(nullable = false, length = 20)
+    private String status = "ACTIVE";
+
+    // Mentor-only fields
+    @Column(name = "diploma_info", length = 500)
+    private String diplomaInfo;
+
+    @Column(name = "years_of_experience")
+    private Integer yearsOfExperience;
+
+    @Column(name = "field_of_expertise", length = 200)
+    private String fieldOfExpertise;
+
+    @Column(name = "motivation_to_teach", length = 1000)
+    private String motivationToTeach;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "mentor_subjects",
@@ -82,4 +98,19 @@ public class User {
 
     public Set<Review> getReviews() { return reviews; }
     public void setReviews(Set<Review> reviews) { this.reviews = reviews; }
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+
+    public String getDiplomaInfo() { return diplomaInfo; }
+    public void setDiplomaInfo(String diplomaInfo) { this.diplomaInfo = diplomaInfo; }
+
+    public Integer getYearsOfExperience() { return yearsOfExperience; }
+    public void setYearsOfExperience(Integer yearsOfExperience) { this.yearsOfExperience = yearsOfExperience; }
+
+    public String getFieldOfExpertise() { return fieldOfExpertise; }
+    public void setFieldOfExpertise(String fieldOfExpertise) { this.fieldOfExpertise = fieldOfExpertise; }
+
+    public String getMotivationToTeach() { return motivationToTeach; }
+    public void setMotivationToTeach(String motivationToTeach) { this.motivationToTeach = motivationToTeach; }
 }

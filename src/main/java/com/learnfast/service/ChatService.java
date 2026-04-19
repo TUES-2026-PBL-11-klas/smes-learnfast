@@ -64,7 +64,21 @@ public class ChatService {
         dto.setReceiverName(msg.getReceiver().getName());
         dto.setReceiverUsername(msg.getReceiver().getUsername());
         dto.setMessage(msg.getMessage());
+        dto.setMessageType(msg.getMessageType());
         dto.setSentAt(msg.getSentAt());
         return dto;
+    }
+
+    /** Save a CALL_EVENT system message between two users. */
+    public ChatMessage saveCallEvent(Long callerId, Long calleeId, String eventPayload) {
+        User caller = userRepository.findById(callerId).orElseThrow();
+        User callee = userRepository.findById(calleeId).orElseThrow();
+        ChatMessage msg = new ChatMessage();
+        msg.setSender(caller);
+        msg.setReceiver(callee);
+        msg.setMessage(eventPayload);
+        msg.setMessageType("CALL_EVENT");
+        msg.setSentAt(LocalDateTime.now());
+        return chatMessageRepository.save(msg);
     }
 }

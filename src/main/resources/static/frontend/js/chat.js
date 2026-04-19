@@ -137,14 +137,17 @@ async function openChat(userId) {
     // Update main area with animation
     const main = document.getElementById('chat-main');
     main.classList.add('chat-main-entering');
+    const safeName = chatPartner.name || 'User';
+    const safeUser = chatPartner.username || '';
     main.innerHTML = `
         <div class="chat-header chat-header-animate">
-            <div class="avatar avatar-sm">${initials}</div>
+            <div class="avatar avatar-sm">${escapeHtml(initials)}</div>
             <div class="chat-header-info">
-                <h4>${chatPartner.name || 'User'}</h4>
-                <p>@${chatPartner.username || ''}</p>
+                <h4>${escapeHtml(safeName)}</h4>
+                <p>@${escapeHtml(safeUser)}</p>
             </div>
             <div class="chat-header-actions">
+                <button class="btn btn-primary btn-sm" id="chat-call-btn">📞 Call</button>
                 <a href="/frontend/pages/profile.html?id=${userId}" class="btn btn-secondary btn-sm">Profile</a>
             </div>
         </div>
@@ -160,6 +163,12 @@ async function openChat(userId) {
             </button>
         </div>
     `;
+    // Wire the call button after innerHTML so we don't have to escape user
+    // input into an inline onclick attribute.
+    const callBtn = document.getElementById('chat-call-btn');
+    if (callBtn) {
+        callBtn.addEventListener('click', () => _startDirectCall(userId, safeName));
+    }
 
     requestAnimationFrame(() => {
         main.classList.remove('chat-main-entering');
@@ -236,17 +245,25 @@ function appendMessage(msg, animate = true, staggerIndex = 0) {
     const container = document.getElementById('chat-messages');
     if (!container) return;
 
-    // Remove start prompt if present
     const prompt = container.querySelector('.chat-start-prompt');
     if (prompt) prompt.remove();
+
+    if (msg.id && container.querySelector(`[data-msg-id="${msg.id}"]`)) return;
+
+    const div = document.createElement('div');
+    if (msg.id) div.setAttribute('data-msg-id', msg.id);
+
+    if (msg.messageType === 'CALL_EVENT') {
+        div.className = 'call-event-msg' + (animate ? ' msg-animate-in' : '');
+        div.innerHTML = _renderCallEvent(msg);
+        container.appendChild(div);
+        container.scrollTop = container.scrollHeight;
+        return;
+    }
 
     const isSent = msg.senderId === currentUser.id;
     const time = new Date(msg.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-    // Avoid duplicates by checking if message ID already exists
-    if (msg.id && container.querySelector(`[data-msg-id="${msg.id}"]`)) return;
-
-    const div = document.createElement('div');
     div.className = `chat-message ${isSent ? 'sent' : 'received'}`;
     if (animate) {
         div.classList.add('msg-animate-in');
@@ -254,13 +271,34 @@ function appendMessage(msg, animate = true, staggerIndex = 0) {
         div.classList.add('msg-stagger-in');
         div.style.animationDelay = `${Math.min(staggerIndex * 0.03, 1)}s`;
     }
-    if (msg.id) div.setAttribute('data-msg-id', msg.id);
     div.innerHTML = `
         <div class="msg-text">${escapeHtml(msg.message)}</div>
         <div class="msg-time">${time}</div>
     `;
     container.appendChild(div);
     container.scrollTop = container.scrollHeight;
+}
+
+function _renderCallEvent(msg) {
+    const [event, secStr] = (msg.message || '').split(':');
+    const secs = parseInt(secStr || '0', 10);
+    const dur  = secs > 0
+        ? ` · ${Math.floor(secs/60)}:${String(secs%60).padStart(2,'0')}`
+        : '';
+    const time = new Date(msg.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const outgoing = msg.senderId === currentUser.id;
+
+    const map = {
+        RINGING:  { icon: outgoing ? '📞' : '📲', label: outgoing ? 'Outgoing call' : 'Incoming call',  color: '#94a3b8' },
+        ACCEPTED: { icon: '📞',  label: 'Call started',  color: '#22c55e' },
+        ENDED:    { icon: '✅',  label: 'Call ended' + dur, color: '#6366f1' },
+        DECLINED: { icon: '📵',  label: outgoing ? 'Call declined' : 'You declined', color: '#ef4444' },
+        MISSED:   { icon: '📴',  label: outgoing ? 'No answer'    : 'Missed call',   color: '#f59e0b' },
+    };
+    const { icon, label, color } = map[event] || { icon: '📞', label: event, color: '#94a3b8' };
+
+    return `<span style="color:${color};font-size:0.82rem;">${icon} ${label}</span>
+            <span style="color:rgba(255,255,255,0.3);font-size:0.72rem;margin-left:0.5rem;">${time}</span>`;
 }
 
 async function sendMessage() {
@@ -356,4 +394,14 @@ function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+// ── Direct call from chat (roomId is deterministic from both user IDs) ─────────
+function _startDirectCall(targetUserId, targetName) {
+    if (typeof sendCallInvite === 'function') {
+        const a = Math.min(currentUser.id, targetUserId);
+        const b = Math.max(currentUser.id, targetUserId);
+        const roomId = `dm-${a}-${b}`;
+        sendCallInvite(roomId, targetUserId, targetName);
+    }
 }

@@ -17,6 +17,11 @@ public class UserDto {
     private Set<String> subjects;
     private Double averageRating;
     private Integer reviewCount;
+    private String status;
+    private String diplomaInfo;
+    private Integer yearsOfExperience;
+    private String fieldOfExpertise;
+    private String motivationToTeach;
 
     public static UserDto from(User user) {
         UserDto dto = new UserDto();
@@ -39,7 +44,16 @@ public class UserDto {
             dto.reviewCount = 0;
             dto.averageRating = 0.0;
         }
-        
+
+        dto.status = user.getStatus();
+
+        if ("mentor".equals(user.getRole().getName())) {
+            dto.diplomaInfo = user.getDiplomaInfo();
+            dto.yearsOfExperience = user.getYearsOfExperience();
+            dto.fieldOfExpertise = user.getFieldOfExpertise();
+            dto.motivationToTeach = user.getMotivationToTeach();
+        }
+
         return dto;
     }
 
@@ -54,4 +68,9 @@ public class UserDto {
     public Set<String> getSubjects() { return subjects; }
     public Double getAverageRating() { return averageRating; }
     public Integer getReviewCount() { return reviewCount; }
+    public String getStatus() { return status; }
+    public String getDiplomaInfo() { return diplomaInfo; }
+    public Integer getYearsOfExperience() { return yearsOfExperience; }
+    public String getFieldOfExpertise() { return fieldOfExpertise; }
+    public String getMotivationToTeach() { return motivationToTeach; }
 }

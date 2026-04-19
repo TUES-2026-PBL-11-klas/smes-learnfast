@@ -5,38 +5,283 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Video Call — LearnFast</title>
     <link rel="stylesheet" href="/frontend/css/global.css">
-    <link rel="stylesheet" href="/frontend/css/pages.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: #111214;
+            color: #fff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ── Top bar ── */
+        .vc-topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.6rem 1.25rem;
+            background: #18191c;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            flex-shrink: 0;
+        }
+        .vc-topbar-brand { font-weight: 700; font-size: 1rem; color: #7c6fff; }
+        .vc-status-pill {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.07);
+            color: rgba(255,255,255,0.55);
+            transition: background 0.3s, color 0.3s;
+        }
+        .vc-status-pill.connected {
+            background: rgba(34,197,94,0.15);
+            color: #4ade80;
+        }
+        .vc-status-pill.calling {
+            background: rgba(251,191,36,0.15);
+            color: #fbbf24;
+        }
+        .vc-status-pill.error {
+            background: rgba(239,68,68,0.15);
+            color: #f87171;
+        }
+        .vc-timer { font-size: 0.85rem; color: rgba(255,255,255,0.4); font-variant-numeric: tabular-nums; }
+
+        /* ── Video area ── */
+        .vc-stage {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            gap: 1rem;
+            overflow: hidden;
+        }
+
+        .vc-tile {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #1e1f22;
+            border: 2px solid transparent;
+            transition: border-color 0.3s;
+        }
+        .vc-tile.speaking { border-color: #5865f2; }
+
+        .vc-tile video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .vc-tile-label {
+            position: absolute;
+            bottom: 0.5rem;
+            left: 0.75rem;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            border-radius: 6px;
+            padding: 0.15rem 0.5rem;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+
+        .vc-tile-muted {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: rgba(239,68,68,0.85);
+            border-radius: 50%;
+            width: 24px; height: 24px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+        }
+        .vc-tile-muted.visible { display: flex; }
+
+        /* Remote tile — large */
+        #tile-remote {
+            flex: 1;
+            max-width: 900px;
+            aspect-ratio: 16/9;
+        }
+
+        /* Local tile — PiP corner */
+        #tile-local {
+            position: absolute;
+            bottom: 80px;
+            right: 24px;
+            width: 180px;
+            aspect-ratio: 16/9;
+            border: 2px solid rgba(255,255,255,0.15);
+            z-index: 10;
+            cursor: move;
+            border-radius: 10px;
+        }
+
+        /* Waiting overlay on remote tile */
+        .vc-waiting {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            background: #1e1f22;
+            transition: opacity 0.4s;
+        }
+        .vc-waiting.hidden { opacity: 0; pointer-events: none; }
+
+        .vc-avatar {
+            width: 80px; height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #5865f2, #7c6fff);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2rem; font-weight: 700;
+        }
+        .vc-waiting-dots span {
+            display: inline-block;
+            width: 8px; height: 8px; border-radius: 50%;
+            background: rgba(255,255,255,0.4);
+            margin: 0 3px;
+            animation: bounce 1.2s infinite;
+        }
+        .vc-waiting-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .vc-waiting-dots span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes bounce {
+            0%, 80%, 100% { transform: translateY(0); }
+            40%            { transform: translateY(-8px); }
+        }
+
+        /* ── Controls bar ── */
+        .vc-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            padding: 0.85rem 1.25rem;
+            background: #18191c;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            flex-shrink: 0;
+        }
+
+        .vc-btn {
+            width: 52px; height: 52px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex; align-items: center; justify-content: center;
+            background: #2b2d31;
+            color: #fff;
+            transition: background 0.15s, transform 0.1s;
+        }
+        .vc-btn:hover { background: #3a3c42; transform: scale(1.05); }
+        .vc-btn.off { background: rgba(239,68,68,0.2); color: #f87171; }
+        .vc-btn.off:hover { background: rgba(239,68,68,0.35); }
+        .vc-btn-end {
+            background: #ed4245;
+            width: 60px; height: 60px;
+            font-size: 1.4rem;
+        }
+        .vc-btn-end:hover { background: #c03537; }
+
+        .vc-btn-label {
+            font-size: 0.65rem;
+            color: rgba(255,255,255,0.45);
+            margin-top: 0.2rem;
+            text-align: center;
+        }
+        .vc-btn-wrap { display: flex; flex-direction: column; align-items: center; }
+
+        /* ── Reconnect overlay ── */
+        #vc-error-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 50;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 1.25rem;
+            text-align: center;
+        }
+        #vc-error-overlay.visible { display: flex; }
+        #vc-error-overlay h3 { font-size: 1.2rem; color: #f87171; }
+        #vc-error-overlay p { font-size: 0.88rem; color: rgba(255,255,255,0.55); max-width: 300px; }
+
+        @media (max-width: 600px) {
+            #tile-remote { aspect-ratio: 4/3; }
+            #tile-local { width: 110px; bottom: 70px; right: 12px; }
+            .vc-btn { width: 44px; height: 44px; font-size: 1rem; }
+            .vc-btn-end { width: 52px; height: 52px; }
+        }
+    </style>
 </head>
 <body>
-    <div class="bg-animated"></div>
 
-    <nav class="navbar" id="navbar">
-        <a href="/frontend/pages/index.html" class="navbar-brand">
-            <span class="brand-icon">⚡</span> LearnFast
-        </a>
-        <div class="navbar-links" id="nav-links"></div>
-    </nav>
+    <!-- Top bar -->
+    <div class="vc-topbar">
+        <span class="vc-topbar-brand">⚡ LearnFast</span>
+        <span class="vc-status-pill" id="vc-status">Connecting…</span>
+        <span class="vc-timer" id="vc-timer"></span>
+    </div>
 
-    <div class="video-layout">
-        <h2 class="text-center">Video Session</h2>
-        <p class="text-muted text-center" id="video-status">Connecting...</p>
-
-        <div class="video-grid">
-            <div class="video-container">
-                <video id="local-video" autoplay muted playsinline></video>
-                <div class="video-label">You</div>
+    <!-- Main stage -->
+    <div class="vc-stage">
+        <!-- Remote participant (large) -->
+        <div class="vc-tile" id="tile-remote">
+            <video id="remote-video" autoplay playsinline></video>
+            <div class="vc-waiting" id="vc-waiting">
+                <div class="vc-avatar" id="remote-avatar">?</div>
+                <div style="font-weight:600;font-size:1rem;" id="remote-name-label">Waiting…</div>
+                <div class="vc-waiting-dots">
+                    <span></span><span></span><span></span>
+                </div>
             </div>
-            <div class="video-container">
-                <video id="remote-video" autoplay playsinline></video>
-                <div class="video-label" id="remote-label">Waiting for peer...</div>
-            </div>
+            <div class="vc-tile-label" id="remote-label" style="display:none;">Other person</div>
         </div>
 
-        <div class="video-controls">
-            <button class="btn btn-icon" id="btn-mic" onclick="toggleMic()" title="Toggle Microphone">🎤</button>
-            <button class="btn btn-icon" id="btn-camera" onclick="toggleCamera()" title="Toggle Camera">📷</button>
-            <button class="btn btn-icon btn-end-call" id="btn-end" onclick="endCall()" title="End Call">📞</button>
+        <!-- Local (picture-in-picture) -->
+        <div class="vc-tile" id="tile-local">
+            <video id="local-video" autoplay muted playsinline></video>
+            <div class="vc-tile-label">You</div>
+            <div class="vc-tile-muted" id="local-muted-icon">🔇</div>
         </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="vc-controls">
+        <div class="vc-btn-wrap">
+            <button class="vc-btn" id="btn-mic" onclick="toggleMic()" title="Microphone">🎤</button>
+            <div class="vc-btn-label">Mic</div>
+        </div>
+        <div class="vc-btn-wrap">
+            <button class="vc-btn" id="btn-cam" onclick="toggleCamera()" title="Camera">📷</button>
+            <div class="vc-btn-label">Camera</div>
+        </div>
+        <div class="vc-btn-wrap">
+            <button class="vc-btn-end vc-btn" onclick="endCall()" title="End call">📞</button>
+            <div class="vc-btn-label" style="color:#f87171;">End</div>
+        </div>
+    </div>
+
+    <!-- Error / reconnect overlay -->
+    <div id="vc-error-overlay">
+        <h3>Connection lost</h3>
+        <p id="vc-error-msg">Could not connect to the other person.</p>
+        <button class="vc-btn" style="width:auto;border-radius:8px;padding:0.6rem 1.5rem;font-size:0.9rem;"
+            onclick="location.reload()">🔄 Retry</button>
+        <button class="vc-btn" style="width:auto;border-radius:8px;padding:0.6rem 1.5rem;font-size:0.9rem;"
+            onclick="endCall()">← Dashboard</button>
     </div>
 
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
