@@ -136,6 +136,11 @@ function _handle(signal) {
 
     if (signal.type === 'INVITE')    { _showIncoming(signal); return; }
 
+    if (signal.type === 'GROUP_CALL_STARTED') {
+        _showGroupCallIncoming(signal);
+        return;
+    }
+
     if (signal.type === 'DECLINED')  {
         _toast(`📵 ${signal.calleeName || 'They'} declined the call`);
         return;
@@ -147,6 +152,56 @@ function _handle(signal) {
         _toast('📵 Caller cancelled');
         return;
     }
+}
+
+// ─── Group call incoming notification ─────────────────────────────────────────
+function _showGroupCallIncoming(signal) {
+    if (!signal || !signal.channelId) return;
+    // Remove any existing incoming notification
+    document.getElementById('__lf_incoming')?.remove();
+
+    const callerName = signal.callerName || 'Someone';
+    const channelName = signal.channelName || 'Channel';
+
+    const div = document.createElement('div');
+    div.id = '__lf_incoming';
+    div.style.cssText = 'position:fixed;bottom:1.5rem;right:1.5rem;background:#23272a;border:1px solid #5865f2;border-radius:12px;padding:1.25rem 1.5rem;z-index:99999;min-width:280px;box-shadow:0 8px 32px rgba(0,0,0,0.5);color:#fff;font-family:sans-serif;';
+
+    // Build DOM safely (avoid injecting user text into innerHTML)
+    const title = document.createElement('div');
+    title.style.cssText = 'font-weight:700;margin-bottom:0.25rem;';
+    title.textContent = '📢 Group Call';
+
+    const body = document.createElement('div');
+    body.style.cssText = 'font-size:0.88rem;color:rgba(255,255,255,0.6);margin-bottom:1rem;';
+    const strong = document.createElement('strong');
+    strong.style.color = '#fff';
+    strong.textContent = channelName;
+    body.append(callerName + ' started a call in ', strong);
+
+    const btns = document.createElement('div');
+    btns.style.cssText = 'display:flex;gap:0.5rem;';
+    const joinBtn = document.createElement('button');
+    joinBtn.id = '__lf_gjoin';
+    joinBtn.textContent = 'Join';
+    joinBtn.style.cssText = 'flex:1;background:#5865f2;color:#fff;border:none;border-radius:8px;padding:0.5rem;cursor:pointer;font-weight:600;';
+    const dismissBtn = document.createElement('button');
+    dismissBtn.id = '__lf_gdismiss';
+    dismissBtn.textContent = 'Dismiss';
+    dismissBtn.style.cssText = 'flex:1;background:#2b2d31;color:#fff;border:none;border-radius:8px;padding:0.5rem;cursor:pointer;';
+    btns.append(joinBtn, dismissBtn);
+
+    div.append(title, body, btns);
+    document.body.appendChild(div);
+
+    joinBtn.addEventListener('click', () => {
+        div.remove();
+        window.location.href =
+            `/frontend/pages/group-call.html?channelId=${signal.channelId}` +
+            `&channelName=${encodeURIComponent(channelName)}`;
+    });
+    dismissBtn.addEventListener('click', () => div.remove());
+    setTimeout(() => div?.remove(), 30000);
 }
 
 // ─── Incoming call UI ─────────────────────────────────────────────────────────

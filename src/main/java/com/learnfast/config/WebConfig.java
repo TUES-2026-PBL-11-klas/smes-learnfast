@@ -5,6 +5,9 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
@@ -12,6 +15,10 @@ public class WebConfig implements WebMvcConfigurer {
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/frontend/**")
                 .addResourceLocations("classpath:/static/frontend/");
+
+        Path uploadsDir = Paths.get("uploads").toAbsolutePath();
+        registry.addResourceHandler("/uploads/**")
+                .addResourceLocations("file:" + uploadsDir + "/");
     }
 
     @Override

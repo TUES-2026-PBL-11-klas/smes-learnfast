@@ -17,6 +17,39 @@
             margin: 0.2rem 0;
             text-align: center;
         }
+        .chat-locked {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            gap: 0.75rem;
+            text-align: center;
+            color: rgba(255,255,255,0.6);
+            padding: 2rem;
+        }
+        .chat-locked h4 { color: #fff; font-size: 1.1rem; margin: 0; }
+        .chat-locked p  { font-size: 0.88rem; max-width: 280px; margin: 0; }
+        .mt-2 { margin-top: 0.5rem; }
+        .chat-attach-btn {
+            padding: 0.4rem 0.6rem;
+            font-size: 1rem;
+            flex-shrink: 0;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.12);
+            color: rgba(255,255,255,0.7);
+        }
+        .chat-attach-btn:hover { background: rgba(255,255,255,0.15); color: #fff; }
+        .msg-image img {
+            max-width: 260px;
+            max-height: 320px;
+            border-radius: 10px;
+            display: block;
+            cursor: pointer;
+            object-fit: cover;
+        }
+        .msg-file a { color: #818cf8; text-decoration: none; }
+        .msg-file a:hover { text-decoration: underline; }
     </style>
 </head>
 <body>

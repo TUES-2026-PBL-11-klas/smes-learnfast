@@ -3,7 +3,9 @@ package com.learnfast.controller;
 import com.learnfast.dto.ChatMessageDto;
 import com.learnfast.dto.UserDto;
 import com.learnfast.model.ChatMessage;
+import com.learnfast.model.MentorSession;
 import com.learnfast.model.User;
+import com.learnfast.repository.SessionRepository;
 import com.learnfast.service.AuthService;
 import com.learnfast.service.ChatService;
 import jakarta.servlet.http.HttpSession;
@@ -13,6 +15,7 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -23,12 +26,54 @@ public class ChatController {
     private final ChatService chatService;
     private final AuthService authService;
     private final SimpMessagingTemplate messagingTemplate;
+    private final SessionRepository sessionRepository;
 
     public ChatController(ChatService chatService, AuthService authService,
-                          SimpMessagingTemplate messagingTemplate) {
+                          SimpMessagingTemplate messagingTemplate,
+                          SessionRepository sessionRepository) {
         this.chatService = chatService;
         this.authService = authService;
         this.messagingTemplate = messagingTemplate;
+        this.sessionRepository = sessionRepository;
+    }
+
+    /** Check if the current user is allowed to chat with another user. */
+    @GetMapping("/api/chat/can-chat/{otherId}")
+    public ResponseEntity<?> canChat(@PathVariable Long otherId, HttpSession session) {
+        Long userId = (Long) session.getAttribute("userId");
+        if (userId == null) return ResponseEntity.status(401).body(Map.of("error", "Not authenticated"));
+
+        User me    = authService.findById(userId).orElseThrow();
+        User other = authService.findById(otherId).orElse(null);
+        if (other == null) return ResponseEntity.ok(Map.of("canChat", false, "reason", "USER_NOT_FOUND"));
+
+        String myRole    = me.getRole().getName();
+        String otherRole = other.getRole().getName();
+
+        // Chat is gated only between students and mentors.
+        boolean isMentorStudentPair =
+            (myRole.equals("student") && otherRole.equals("mentor")) ||
+            (myRole.equals("mentor")  && otherRole.equals("student"));
+
+        if (!isMentorStudentPair) {
+            return ResponseEntity.ok(Map.of("canChat", true));
+        }
+
+        if (sessionRepository.hasAcceptedSession(userId, otherId)) {
+            return ResponseEntity.ok(Map.of("canChat", true));
+        }
+
+        // Check if there's a pending session
+        List<MentorSession> sessions = sessionRepository.findBetween(userId, otherId);
+        boolean hasPending = sessions.stream()
+            .anyMatch(s -> s.getStatus() == MentorSession.Status.PENDING);
+
+        Map<String, Object> resp = new HashMap<>();
+        resp.put("canChat", false);
+        resp.put("hasPending", hasPending);
+        resp.put("canRequest", myRole.equals("student"));  // only students can send requests
+        resp.put("reason", hasPending ? "PENDING_SESSION" : "NO_SESSION");
+        return ResponseEntity.ok(resp);
     }
 
     @GetMapping("/api/chat/conversations")
@@ -73,8 +118,21 @@ public class ChatController {
 
         Long receiverId = Long.parseLong(body.get("receiverId").toString());
         String message = (String) body.get("message");
+        String messageType = body.get("messageType") instanceof String t ? t : "TEXT";
 
-        ChatMessage saved = chatService.saveMessage(sender, receiverId, message);
+        // Enforce session gate: student↔mentor require an ACCEPTED session.
+        User receiver = authService.findById(receiverId).orElse(null);
+        if (receiver != null) {
+            String sRole = sender.getRole().getName();
+            String rRole = receiver.getRole().getName();
+            boolean gate = (sRole.equals("student") && rRole.equals("mentor")) ||
+                           (sRole.equals("mentor")  && rRole.equals("student"));
+            if (gate && !sessionRepository.hasAcceptedSession(userId, receiverId)) {
+                return ResponseEntity.status(403).body(Map.of("error", "Session not accepted yet"));
+            }
+        }
+
+        ChatMessage saved = chatService.saveMessage(sender, receiverId, message, messageType);
         ChatMessageDto dto = chatService.toDto(saved);
 
         // Send via WebSocket to the receiver

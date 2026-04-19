@@ -27,6 +27,10 @@ public class ChatService {
     }
 
     public ChatMessage saveMessage(User sender, Long receiverId, String message) {
+        return saveMessage(sender, receiverId, message, "TEXT");
+    }
+
+    public ChatMessage saveMessage(User sender, Long receiverId, String message, String messageType) {
         User receiver = userRepository.findById(receiverId)
             .orElseThrow(() -> new ResourceNotFoundException("Receiver", receiverId));
 
@@ -34,6 +38,7 @@ public class ChatService {
         chatMessage.setSender(sender);
         chatMessage.setReceiver(receiver);
         chatMessage.setMessage(message);
+        chatMessage.setMessageType(messageType != null ? messageType : "TEXT");
         chatMessage.setSentAt(LocalDateTime.now());
 
         return chatMessageRepository.save(chatMessage);

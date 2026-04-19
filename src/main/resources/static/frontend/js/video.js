@@ -16,6 +16,8 @@ let myPeerId      = null;
 let otherPeerId   = null;
 let myRole        = null;
 let myRoomId      = null;
+let screenStream  = null;   // active screen capture stream
+let screenOn      = false;
 
 // Beacon fallback: if page closes without clicking End, mark as MISSED/ENDED
 window.addEventListener('pagehide', () => {
@@ -283,11 +285,84 @@ function toggleCamera() {
     if (btn) btn.textContent = camOn ? '📷' : '🚫';
 }
 
+async function toggleScreenShare() {
+    const btn = document.getElementById('btn-screen');
+
+    if (screenOn) {
+        _stopScreenShare();
+        return;
+    }
+
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
+        alert('Screen sharing is not supported in this browser.');
+        return;
+    }
+
+    try {
+        screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
+    } catch (e) {
+        // User cancelled the picker — not an error
+        return;
+    }
+
+    const screenTrack = screenStream.getVideoTracks()[0];
+
+    // Replace the video track in the ongoing PeerJS call
+    if (currentCall && currentCall.peerConnection) {
+        const sender = currentCall.peerConnection.getSenders()
+            .find(s => s.track && s.track.kind === 'video');
+        if (sender) await sender.replaceTrack(screenTrack);
+    }
+
+    // Show screen in local PiP
+    const localVideo = document.getElementById('local-video');
+    if (localVideo) localVideo.srcObject = screenStream;
+
+    // Update local tile label
+    const localLabel = document.querySelector('#tile-local .vc-tile-label');
+    if (localLabel) localLabel.textContent = '🖥️ Screen';
+
+    screenOn = true;
+    if (btn) btn.classList.add('sharing');
+
+    // When user stops sharing via browser's own "Stop sharing" button
+    screenTrack.addEventListener('ended', _stopScreenShare);
+}
+
+function _stopScreenShare() {
+    if (!screenOn) return;
+    screenOn = false;
+
+    if (screenStream) {
+        screenStream.getTracks().forEach(t => { try { t.stop(); } catch (_) {} });
+        screenStream = null;
+    }
+
+    // Restore camera track
+    const camTrack = localStream && localStream.getVideoTracks()[0];
+    if (camTrack && currentCall && currentCall.peerConnection) {
+        const sender = currentCall.peerConnection.getSenders()
+            .find(s => s.track && s.track.kind === 'video');
+        if (sender) sender.replaceTrack(camTrack);
+    }
+
+    // Restore local PiP to camera
+    const localVideo = document.getElementById('local-video');
+    if (localVideo && localStream) localVideo.srcObject = localStream;
+
+    const localLabel = document.querySelector('#tile-local .vc-tile-label');
+    if (localLabel) localLabel.textContent = 'You';
+
+    const btn = document.getElementById('btn-screen');
+    if (btn) btn.classList.remove('sharing');
+}
+
 async function endCall() {
     clearInterval(retryTimer); retryTimer = null;
     clearInterval(callTimer);  callTimer  = null;
     if (pendingCall) { try { pendingCall.close(); } catch (_) {} pendingCall = null; }
     if (currentCall) { try { currentCall.close(); } catch (_) {} currentCall = null; }
+    if (screenStream) { screenStream.getTracks().forEach(t => { try { t.stop(); } catch (_) {} }); screenStream = null; }
     if (localStream) { localStream.getTracks().forEach(t => { try { t.stop(); } catch (_) {} }); }
     if (peer && !peer.destroyed) { try { peer.destroy(); } catch (_) {} }
 
@@ -306,6 +381,30 @@ async function endCall() {
     }
 
     window.location.href = '/frontend/pages/dashboard.html';
+}
+
+// ── Fullscreen ────────────────────────────────────────────────────────────────
+function toggleFullscreen(tileId) {
+    const tile = document.getElementById(tileId);
+    if (!tile) return;
+    const fs = document.fullscreenElement || document.webkitFullscreenElement;
+    if (fs === tile) {
+        (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else {
+        const req = tile.requestFullscreen || tile.webkitRequestFullscreen;
+        if (req) req.call(tile);
+    }
+}
+
+// Update fullscreen button icon when fullscreen state changes
+document.addEventListener('fullscreenchange', _onFullscreenChange);
+document.addEventListener('webkitfullscreenchange', _onFullscreenChange);
+function _onFullscreenChange() {
+    const fs = document.fullscreenElement || document.webkitFullscreenElement;
+    document.querySelectorAll('.vc-tile-fullscreen').forEach(btn => {
+        const tile = btn.closest('.vc-tile');
+        btn.textContent = (fs && fs === tile) ? '✕' : '⛶';
+    });
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────

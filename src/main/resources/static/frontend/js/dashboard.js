@@ -26,7 +26,6 @@
             if (sessions.length > 0) {
                 container.innerHTML = sessions.slice(0, 5).map(s => {
                     const other = user.role === 'student' ? s.mentor : s.student;
-                    const initials = other.name.split(' ').map(w => w[0]).join('').toUpperCase();
                     const statusClass = {
                         PENDING: 'badge-orange',
                         ACCEPTED: 'badge-green',
@@ -36,7 +35,7 @@
 
                     return `
                         <div class="session-item">
-                            <div class="avatar avatar-sm">${initials}</div>
+                            ${API.avatarHtml(other.name, other.avatarUrl)}
                             <div class="session-info">
                                 <h4>${other.name}</h4>
                                 <p>${new Date(s.createdAt).toLocaleDateString()}</p>
@@ -95,10 +94,9 @@
             const container = document.getElementById('recent-messages');
             if (convos.length > 0) {
                 container.innerHTML = convos.slice(0, 5).map(c => {
-                    const initials = c.name.split(' ').map(w => w[0]).join('').toUpperCase();
                     return `
                         <div class="message-item" onclick="window.location.href='/frontend/pages/chat.html?user=${c.id}'">
-                            <div class="avatar avatar-sm">${initials}</div>
+                            ${API.avatarHtml(c.name, c.avatarUrl)}
                             <div class="message-info">
                                 <h4>${c.name}</h4>
                                 <p>@${c.username}</p>

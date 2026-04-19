@@ -112,6 +112,41 @@
             aspect-ratio: 16/9;
         }
 
+        /* Fullscreen button — appears on tile hover */
+        .vc-tile-fullscreen {
+            position: absolute;
+            top: 0.5rem;
+            left: 0.5rem;
+            background: rgba(0,0,0,0.55);
+            border: none;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 1rem;
+            width: 32px; height: 32px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 20;
+        }
+        .vc-tile:hover .vc-tile-fullscreen { opacity: 1; }
+        .vc-tile-fullscreen:hover { background: rgba(0,0,0,0.8); }
+
+        /* Fullscreen: make the tile fill the screen */
+        .vc-tile:fullscreen,
+        .vc-tile:-webkit-full-screen {
+            width: 100vw !important;
+            height: 100vh !important;
+            max-width: 100vw !important;
+            aspect-ratio: unset !important;
+            border-radius: 0 !important;
+            border: none !important;
+        }
+        .vc-tile:fullscreen video,
+        .vc-tile:-webkit-full-screen video {
+            object-fit: contain;
+        }
+
         /* Local tile — PiP corner */
         #tile-local {
             position: absolute;
@@ -192,6 +227,12 @@
             font-size: 1.4rem;
         }
         .vc-btn-end:hover { background: #c03537; }
+        .vc-btn.sharing {
+            background: rgba(99,102,241,0.3);
+            color: #818cf8;
+            outline: 2px solid #6366f1;
+        }
+        .vc-btn.sharing:hover { background: rgba(99,102,241,0.45); }
 
         .vc-btn-label {
             font-size: 0.65rem;
@@ -248,6 +289,7 @@
                 </div>
             </div>
             <div class="vc-tile-label" id="remote-label" style="display:none;">Other person</div>
+            <button class="vc-tile-fullscreen" onclick="toggleFullscreen('tile-remote')" title="Fullscreen">⛶</button>
         </div>
 
         <!-- Local (picture-in-picture) -->
@@ -255,6 +297,7 @@
             <video id="local-video" autoplay muted playsinline></video>
             <div class="vc-tile-label">You</div>
             <div class="vc-tile-muted" id="local-muted-icon">🔇</div>
+            <button class="vc-tile-fullscreen" onclick="toggleFullscreen('tile-local')" title="Fullscreen">⛶</button>
         </div>
     </div>
 
@@ -267,6 +310,10 @@
         <div class="vc-btn-wrap">
             <button class="vc-btn" id="btn-cam" onclick="toggleCamera()" title="Camera">📷</button>
             <div class="vc-btn-label">Camera</div>
+        </div>
+        <div class="vc-btn-wrap">
+            <button class="vc-btn" id="btn-screen" onclick="toggleScreenShare()" title="Share screen">🖥️</button>
+            <div class="vc-btn-label">Screen</div>
         </div>
         <div class="vc-btn-wrap">
             <button class="vc-btn-end vc-btn" onclick="endCall()" title="End call">📞</button>

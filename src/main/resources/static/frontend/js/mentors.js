@@ -84,7 +84,6 @@ function renderMentors(mentors) {
 
     empty.classList.add('hidden');
     grid.innerHTML = mentors.map(m => {
-        const initials = m.name.split(' ').map(w => w[0]).join('').toUpperCase();
         const subjects = (m.subjects || []).map(s =>
             `<span class="badge badge-blue">${s}</span>`).join('');
         const bio = m.bio ? m.bio.substring(0, 120) + (m.bio.length > 120 ? '...' : '') : 'No bio yet';
@@ -92,7 +91,7 @@ function renderMentors(mentors) {
         return `
             <div class="glass-card mentor-card animate-in">
                 <div class="mentor-card-header">
-                    <div class="avatar">${initials}</div>
+                    ${API.avatarHtml(m.name, m.avatarUrl, 'avatar')}
                     <div class="mentor-card-info">
                         <h3>${m.name}</h3>
                         <span class="mentor-meta">@${m.username} · ${m.age} years old</span>
