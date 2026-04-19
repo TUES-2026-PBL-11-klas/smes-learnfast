@@ -7,6 +7,19 @@
     <title>Sign Up — LearnFast</title>
     <link rel="stylesheet" href="/frontend/css/global.css">
     <link rel="stylesheet" href="/frontend/css/pages.css">
+    <style>
+        .mentor-section-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--primary, #7c6fff);
+            margin: 1.2rem 0 0.8rem;
+            padding-bottom: 0.4rem;
+            border-bottom: 1px solid rgba(124,111,255,0.25);
+        }
+        .required { color: #ff6b6b; margin-left: 2px; }
+    </style>
 </head>
 <body>
     <div class="bg-animated"></div>
@@ -69,6 +82,35 @@
                     <textarea class="form-control" id="reg-bio" placeholder="Tell us about yourself..." rows="3"></textarea>
                 </div>
 
+                <!-- Mentor-only fields -->
+                <div id="mentor-fields" style="display:none;">
+                    <div class="mentor-section-label">Mentor Application</div>
+
+                    <div class="form-group">
+                        <label for="reg-diploma">Diploma / Qualification <span class="required">*</span></label>
+                        <input type="text" class="form-control" id="reg-diploma"
+                               placeholder="e.g. MSc Computer Science, Sofia University">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="reg-years">Years of teaching experience <span class="required">*</span></label>
+                        <input type="number" class="form-control" id="reg-years"
+                               placeholder="0" min="0" max="50" oninput="toggleExperienceFields()">
+                    </div>
+
+                    <div class="form-group" id="field-of-expertise-group" style="display:none;">
+                        <label for="reg-field">Field of expertise <span class="required">*</span></label>
+                        <input type="text" class="form-control" id="reg-field"
+                               placeholder="e.g. Web Development, Mathematics, Physics">
+                    </div>
+
+                    <div class="form-group" id="motivation-group" style="display:none;">
+                        <label for="reg-motivation">Why do you want to start teaching at LearnFast? <span class="required">*</span></label>
+                        <textarea class="form-control" id="reg-motivation"
+                                  placeholder="Tell us about your passion for teaching and what you can offer to students..." rows="3"></textarea>
+                    </div>
+                </div>
+
                 <input type="hidden" id="reg-role" value="student">
 
                 <button type="submit" class="btn btn-primary w-full btn-lg">Create Account</button>
@@ -86,6 +128,12 @@
         // Pre-select role from URL
         const params = new URLSearchParams(window.location.search);
         if (params.get('role') === 'mentor') selectRole('mentor');
+
+        function toggleExperienceFields() {
+            const years = parseInt(document.getElementById('reg-years').value) || 0;
+            document.getElementById('field-of-expertise-group').style.display = years > 0 ? 'block' : 'none';
+            document.getElementById('motivation-group').style.display = years === 0 ? 'block' : 'none';
+        }
     </script>
 </body>
 </html>

@@ -149,7 +149,7 @@ class UserServiceTest {
 
         assertThatThrownBy(() -> userService.updateSubjects(student, Set.of(99L)))
                 .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("Subject not found: 99");
+                .hasMessageContaining("Subject with id 99 not found");
 
         verify(userRepository, never()).save(any());
     }

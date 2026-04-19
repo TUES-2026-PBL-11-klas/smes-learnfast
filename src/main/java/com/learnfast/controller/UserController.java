@@ -22,6 +22,18 @@ public class UserController {
         this.userService = userService;
     }
 
+    /** All non-admin users — used by mentors when adding channel members. */
+    @GetMapping("/users")
+    public ResponseEntity<?> getAllUsers(HttpSession session) {
+        if (session.getAttribute("userId") == null) {
+            return ResponseEntity.status(401).body(Map.of("error", "Not authenticated"));
+        }
+        List<UserDto> users = userService.getAllUsers().stream()
+            .filter(u -> !"admin".equals(u.getRole().getName()))
+            .map(UserDto::from).collect(Collectors.toList());
+        return ResponseEntity.ok(users);
+    }
+
     @GetMapping("/mentors")
     public ResponseEntity<List<UserDto>> getMentors() {
         List<UserDto> mentors = userService.getMentors().stream()

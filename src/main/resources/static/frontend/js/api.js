@@ -87,5 +87,16 @@ const API = {
             </div>
         `;
         setTimeout(() => { container.innerHTML = ''; }, 5000);
+    },
+
+    // Returns avatar HTML: <img> if avatarUrl set, otherwise initials <div>
+    avatarHtml(name, avatarUrl, sizeClass = 'avatar-sm') {
+        const initials = (name || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+        if (avatarUrl && avatarUrl.trim()) {
+            return `<img src="${avatarUrl}" alt="${initials}" class="avatar ${sizeClass}"
+                        style="object-fit:cover;border-radius:50%;"
+                        onerror="this.outerHTML='<div class=\\'avatar ${sizeClass}\\'>${initials}</div>'">`;
+        }
+        return `<div class="avatar ${sizeClass}">${initials}</div>`;
     }
 };

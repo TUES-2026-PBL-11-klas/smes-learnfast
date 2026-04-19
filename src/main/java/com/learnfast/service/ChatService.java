@@ -1,6 +1,7 @@
 package com.learnfast.service;
 
 import com.learnfast.dto.ChatMessageDto;
+import com.learnfast.exception.ResourceNotFoundException;
 import com.learnfast.model.ChatMessage;
 import com.learnfast.model.User;
 import com.learnfast.repository.ChatMessageRepository;
@@ -26,13 +27,18 @@ public class ChatService {
     }
 
     public ChatMessage saveMessage(User sender, Long receiverId, String message) {
+        return saveMessage(sender, receiverId, message, "TEXT");
+    }
+
+    public ChatMessage saveMessage(User sender, Long receiverId, String message, String messageType) {
         User receiver = userRepository.findById(receiverId)
-            .orElseThrow(() -> new RuntimeException("Receiver not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("Receiver", receiverId));
 
         ChatMessage chatMessage = new ChatMessage();
         chatMessage.setSender(sender);
         chatMessage.setReceiver(receiver);
         chatMessage.setMessage(message);
+        chatMessage.setMessageType(messageType != null ? messageType : "TEXT");
         chatMessage.setSentAt(LocalDateTime.now());
 
         return chatMessageRepository.save(chatMessage);
@@ -40,7 +46,7 @@ public class ChatService {
 
     public List<ChatMessageDto> getConversation(User currentUser, Long otherUserId) {
         User otherUser = userRepository.findById(otherUserId)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("User", otherUserId));
 
         return chatMessageRepository.findConversation(currentUser, otherUser)
             .stream().map(this::toDto).collect(Collectors.toList());
@@ -63,7 +69,21 @@ public class ChatService {
         dto.setReceiverName(msg.getReceiver().getName());
         dto.setReceiverUsername(msg.getReceiver().getUsername());
         dto.setMessage(msg.getMessage());
+        dto.setMessageType(msg.getMessageType());
         dto.setSentAt(msg.getSentAt());
         return dto;
+    }
+
+    /** Save a CALL_EVENT system message between two users. */
+    public ChatMessage saveCallEvent(Long callerId, Long calleeId, String eventPayload) {
+        User caller = userRepository.findById(callerId).orElseThrow();
+        User callee = userRepository.findById(calleeId).orElseThrow();
+        ChatMessage msg = new ChatMessage();
+        msg.setSender(caller);
+        msg.setReceiver(callee);
+        msg.setMessage(eventPayload);
+        msg.setMessageType("CALL_EVENT");
+        msg.setSentAt(LocalDateTime.now());
+        return chatMessageRepository.save(msg);
     }
 }

@@ -1,5 +1,6 @@
 package com.learnfast.service;
 
+import com.learnfast.exception.ResourceNotFoundException;
 import com.learnfast.model.Role;
 import com.learnfast.model.Subject;
 import com.learnfast.model.User;
@@ -40,7 +41,7 @@ public class UserService {
     public User updateSubjects(User user, Set<Long> subjectIds) {
         Set<Subject> subjects = subjectIds.stream()
             .map(id -> subjectRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Subject not found: " + id)))
+                .orElseThrow(() -> new ResourceNotFoundException("Subject", id)))
             .collect(Collectors.toSet());
         user.setSubjects(subjects);
         return userRepository.save(user);

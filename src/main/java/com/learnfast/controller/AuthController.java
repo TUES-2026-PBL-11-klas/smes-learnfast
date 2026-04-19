@@ -29,8 +29,14 @@ public class AuthController {
             String name = (String) body.get("name");
             Integer age = body.get("age") != null ? Integer.parseInt(body.get("age").toString()) : null;
             String bio = (String) body.get("bio");
+            String diplomaInfo = (String) body.get("diplomaInfo");
+            Integer yearsOfExperience = body.get("yearsOfExperience") != null
+                ? Integer.parseInt(body.get("yearsOfExperience").toString()) : null;
+            String fieldOfExpertise = (String) body.get("fieldOfExpertise");
+            String motivationToTeach = (String) body.get("motivationToTeach");
 
-            User user = authService.register(username, email, password, role, name, age, bio);
+            User user = authService.register(username, email, password, role, name, age, bio,
+                diplomaInfo, yearsOfExperience, fieldOfExpertise, motivationToTeach);
             session.setAttribute("userId", user.getId());
 
             return ResponseEntity.ok(UserDto.from(user));

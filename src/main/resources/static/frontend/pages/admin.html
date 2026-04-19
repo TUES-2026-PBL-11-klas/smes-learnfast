@@ -6,6 +6,30 @@
     <title>Admin Panel — LearnFast</title>
     <link rel="stylesheet" href="/frontend/css/global.css">
     <link rel="stylesheet" href="/frontend/css/pages.css">
+    <style>
+        .pending-count {
+            background: #ff6b6b;
+            color: #fff;
+            font-size: 0.7rem;
+            font-weight: 700;
+            border-radius: 999px;
+            padding: 1px 7px;
+            margin-left: 6px;
+            vertical-align: middle;
+        }
+        .mentor-application-card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .mentor-application-card h4 { margin: 0 0 0.25rem; font-size: 1.05rem; }
+        .mentor-application-card .meta { font-size: 0.82rem; color: rgba(255,255,255,0.55); margin-bottom: 0.75rem; }
+        .mentor-application-card .detail-row { font-size: 0.88rem; margin-bottom: 0.3rem; }
+        .mentor-application-card .detail-row strong { color: rgba(255,255,255,0.75); }
+        .mentor-application-card .actions { margin-top: 1rem; display: flex; gap: 0.6rem; }
+    </style>
 </head>
 <body>
     <div class="bg-animated"></div>
@@ -24,6 +48,9 @@
             </button>
             <button class="admin-nav-item" onclick="showTab('users')" id="tab-users">
                 👥 Users
+            </button>
+            <button class="admin-nav-item" onclick="showTab('pending')" id="tab-pending">
+                ⏳ Pending Mentors <span id="pending-badge" class="pending-count" style="display:none;"></span>
             </button>
         </div>
 
@@ -50,6 +77,13 @@
                 </div>
             </div>
 
+            <!-- Pending Mentors Tab -->
+            <div id="panel-pending" style="display:none;">
+                <h2>⏳ Pending Mentor Applications</h2>
+                <p class="text-muted" style="margin-bottom:1.5rem;">Review and approve or reject mentor registration requests.</p>
+                <div id="pending-list"></div>
+            </div>
+
             <!-- Users Tab -->
             <div id="panel-users" style="display:none;">
                 <h2>👥 Manage Users</h2>
@@ -67,7 +101,10 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
     <script src="/frontend/js/api.js"></script>
+    <script src="/frontend/js/call-manager.js"></script>
     <script src="/frontend/js/admin.js"></script>
 </body>
 </html>

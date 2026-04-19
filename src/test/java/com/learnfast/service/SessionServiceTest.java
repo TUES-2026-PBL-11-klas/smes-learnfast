@@ -94,7 +94,7 @@ class SessionServiceTest {
 
         assertThatThrownBy(() -> sessionService.createSession(student, 99L))
                 .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("Mentor not found");
+                .hasMessageContaining("Mentor with id 99 not found");
 
         verify(sessionRepository, never()).save(any());
     }
@@ -154,7 +154,7 @@ class SessionServiceTest {
 
         assertThatThrownBy(() -> sessionService.rejectSession(999L, mentor))
                 .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("Session not found");
+                .hasMessageContaining("Session with id 999 not found");
     }
 
     @Test
